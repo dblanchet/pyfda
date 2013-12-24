@@ -1,2 +1,5 @@
 *.py[ocd]
 *.sw*
+.DS_Store
+.coverage
+htmlcov
