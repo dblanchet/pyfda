@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -+- encoding: utf-8 -+-
 
 from __future__ import print_function
 
@@ -7,109 +8,212 @@ import argparse
 import time
 import json
 
-import flydreamaltimeter
-import flydreamdevice
+from flydream.uploadeddata import UploadedData
+from flydream.dataparser import DataParser
+from flydream.altimeter import Altimeter
+from flydream.exception import FlyDreamAltimeterSerialPortError
 
 RAW_FILE_EXTENSION = '.fda'
 CSV_FILE_EXTENSION = '.csv'
 JSON_FILE_EXTENSION = '.json'
 
 
-def main(argv):
-
-    # Parse command line arguments.
+def parse_command_line():
+    # Setup parser.
     parser = argparse.ArgumentParser(
-            description='Interact with FlyDream Altimeter (FDA).')
-    parser.add_argument('command',
-            help='With connected altimeter: "upload", "setup" or "clear"\n'
-            'With raw data file: "convert" or "info"')
+            description='Interact with FlyDream Altimeter (FDA) device.')
 
+    # Command: What to do.
+    group = parser.add_argument_group('Available commands')
+    group.add_argument('command',
+            choices=['upload', 'setup', 'clear', 'convert', 'info'],
+            help='With connected altimeter: "upload", "setup" or "clear"\n'
+            'With raw data file: "convert" or "info"')  # \n\n'
+            #'upload  - Get all flight data from the Altimeter\n'
+            #'setup   - Change altimeter sampling frequency\n'
+            #'clear   - Erase all flight data on the Device\n\n'
+            #'info    - Print a summary of flight data\n'
+            #'convert - Convert raw altimeter data to various formats')
+
+    # Device related arguments.
     group = parser.add_argument_group('Altimeter configuration')
     group.add_argument('--port',
            help='Altimeter serial port name. Default is platform dependent. '
-           'With "upload", "setup" or "clear" command only.')
+           'With "upload", "setup" or "clear" commands')
     group.add_argument('--frequency', type=int, choices=[1, 2, 4, 8],
             help='Sampling frequency (with "setup" command only)')
 
-    group = parser.add_argument_group('Expected output format (default: raw)')
-    group.add_argument('--raw',
-            action='store_true',
-            help='Output raw binary data (with "upload" command only)')
+    # Generated file related arguments.
+    group = parser.add_argument_group('Expected output format '
+            '(default: raw FDA format with "upload", CSV with "convert")')
     group.add_argument('--csv',
             action='store_true',
             help='Output CSV data (with "upload" or "convert" command)')
     group.add_argument('--json',
             action='store_true',
             help='Output JSON data (with "upload" or "convert" command)')
-    group.add_argument('--output',
-            help='Destination of flight data (with "upload" or "convert" '
+    group.add_argument('--prefix',
+            help='Prefix of generated files (with "upload" or "convert" '
             ' commands). Use current date/time as default.')
 
-    group = parser.add_argument_group('Expected input filename')
-    group.add_argument('--input',
-            help='Altimeter raw data file (with "convert" command only).')
+    # Generated file units.
+    group = parser.add_argument_group('Conversion units '
+            '(with "upload" or "convert" command)')
+    group.add_argument('--celsius',
+            action='store_true',
+            help='Convert temperature to celsius degrees (default)')
+    group.add_argument('--fahrenheit',
+            action='store_true',
+            help='Convert temperature to fahrenheit degrees')
+    group.add_argument('--meters',
+            action='store_true',
+            help='Convert altitude to meters (default)')
+    group.add_argument('--feet',
+            action='store_true',
+            help='Convert altitude to feet')
 
-    # Check command line arguments.
+    # Input arguments.
+    group = parser.add_argument_group('Expected input filename')
+    group.add_argument('fda_file', nargs='?', default=None,
+            help='Altimeter raw data FDA file '
+            '(with "convert" and "info" commands)')
+
+    # Extract arguments.
     args = parser.parse_args()
     #print(args)
-    if args.command not in ['upload', 'setup', 'clear', 'info', 'convert']:
-        print('Invalid command: %s\n' % args.command)
-        parser.print_help()
+
+    # Check argument coherency.
+    command = args.command
+
+    if command == 'setup' and not args.frequency:
+        print('error: Missing --frequency argument with command: %s'
+                % command)
+        return None
+
+    if command in ['info', 'convert']:
+        if not args.fda_file:
+            print('error: Missing fda_file argument with command: %s'
+                    % command)
+            return None
+
+    # Make convert format default to CSV format.
+    if command == 'convert':
+        if not args.csv and not args.json:
+            args.csv = True
+
+    return args
+
+
+def read_fda_file(fda_file):
+    print('Reading file %s...' % fda_file)
+    raw_flights = UploadedData.from_file(fda_file)
+
+    flights = DataParser().extract_flights(raw_flights.data)
+    print('Found %d flights:' % len(flights))
+
+    return flights
+
+
+def print_file_info(fda_file):
+    flights = read_fda_file(fda_file)
+    for idx, flight in enumerate(flights):
+        duration = flight.records[-1].time + 1.0 / flight.sampling_freq
+        print('   %d: %8d records @ %dHz -%10.3f seconds' %
+                (idx, len(flight.records),
+                    flight.sampling_freq, duration))
+
+
+def default_out_filename():
+    return time.strftime('%Y-%m-%d %H-%M-%S', time.localtime()) + '_flight'
+
+
+def convert_to_csv(flights, out_prefix=None):
+    for idx, flight in enumerate(flights):
+        fname = out_prefix + '_%3.3d' % idx + CSV_FILE_EXTENSION
+        print('   Writing %s file' % fname)
+        with open(fname, 'w') as f:
+            temp_unit = '°C'  # TODO Fahrenheit
+            length_unit = 'm'  # TODO Feet
+            f.write('time(sec),temperature(%s),altitude(%s)\n'
+                    % (temp_unit, length_unit))
+            for rec in flight.records:
+                f.write('%.3f,%d,%.1f\n' % rec)
+
+
+def convert_to_json(flights, out_prefix=None):
+    for idx, flight in enumerate(flights):
+        fname = out_prefix + '_flight_%3.3d' % idx + JSON_FILE_EXTENSION
+
+        # Prepare header.
+        temp_unit = 'celsius'  # TODO Fahrenheit
+        length_unit = 'meters'  # TODO Feet
+        root = {
+                'info': {
+                    'temperature_unit': temp_unit,
+                    'length_unit': length_unit,
+                    'sampling_frequency': flight.sampling_freq
+                    },
+                'records': []
+                }
+
+        # Add records.
+        for rec in flight.records:
+            root['records'].append({
+                'time': rec.time,
+                'temperature': rec.temperature,
+                'altitude': rec.altitude,
+                })
+
+        # Write to file.
+        print('   Writing %s file' % fname)
+        with open(fname, 'w') as f:
+            f.write(json.dumps(root, indent=2, separators=(',', ': ')))
+
+
+def main(argv):
+
+    # Check command line argument.
+    args = parse_command_line()
+    if not args:
         return 1
 
     command = args.command
-    frequency = args.frequency
-    output = args.output
-    raw = args.raw
-    json_file = args.json
-    csv = args.csv
 
-    if command == 'setup' and not frequency:
-        print('Missing --frequency argument with command: %s\n' % command)
-        parser.print_help()
-        return 1
-
+    # Give information about given file.
     if command == 'info':
-        # TODO
-        print('Not implemnted yet')
+        print_file_info(args.fda_file)
         return 0
 
+    # Convert raw uploaded data.
     if command == 'convert':
-        # TODO
-        print('Not implemnted yet')
+        flights = read_fda_file(args.fda_file)
+        fname_prefix = args.prefix if args.prefix else default_out_filename()
+
+        if args.csv:
+            convert_to_csv(flights, fname_prefix)
+
+        if args.json:
+            convert_to_json(flights, fname_prefix)
+
         return 0
 
-    # Perform requested task.
-    try:
-        altimeter = flydreamaltimeter.FlyDreamAltimeter()
-    except flydreamaltimeter.FlyDreamDeviceSerialPortError as e:
-        print('''Error: %s
+    # Remaining command requires a connected altimeter.
+    altimeter = Altimeter()
 
-Please ensure that:
- - your altimeter is plugged to the USB adapter.
- - the USB adapter is plugged to your computer.
- - the given port is correct.
- - the USB adapter driver is properly installed on your computer, see
-   http://www.silabs.com/products/mcu/pages/usbtouartbridgevcpdrivers.aspx'''
-   % e.message)
-        return 2
-
-    print('Opening altimeter on %s' % altimeter.port)
+    # Erase all data.
     try:
-        # Erase all flight data.
         if command == 'clear':
-            print('Erasing flight data. Do not disconnect the altimeter')
-            if altimeter.reset_flight_data():
-                print('Success')
-            else:
-                print('Failure')
+            print('Erasing all data. Do not disconnect the altimeter...')
+            altimeter.clear()
+            print('All data erased')
 
-        # Retrieve flight data.
+        if command == 'setup':
+            print('Setting sampling frequency. '
+                    'Do not disconnect the altimeter...')
+            altimeter.setup(args.frequency)
+            print('All data erased')
+
         if command == 'upload':
-            print('Reading flight data. Do not disconnect the altimeter')
-
-            fname = output if output else time.strftime(
-                    '%Y-%m-%d %H-%M-%S', time.localtime())
 
             def progression(read, total):
                 if read < total:
@@ -118,44 +222,26 @@ Please ensure that:
                 else:
                     print('Read %d bytes from altimeter' % total)
 
-            data = altimeter.read_flight_data(progression)
-            if raw:
-                with open(fname + RAW_FILE_EXTENSION, 'wb') as f:
-                    f.write(data[0])
-                    f.write(data[1])
-                print('Raw data written to %s' % fname)
+            print('Reading all data. Do not disconnect the altimeter...')
+            raw_data = altimeter.upload(progression)
+            print('All data read')
 
-            if csv or json_file:
-                flights = altimeter.convert_flight_data(data)
+            fname_prefix = args.prefix if args.prefix \
+                    else default_out_filename()
+            fname = fname_prefix + RAW_FILE_EXTENSION
+            raw_data.to_file(fname)
 
-                count = 0
-                for flight in flights:
-                    if csv:
-                        out_fname = fname + '_%d' % count + CSV_FILE_EXTENSION
-                        with open(out_fname, 'w') as f:
-                            for sample in flight:
-                                f.write('%f,%d,%f' % sample)
+    except FlyDreamAltimeterSerialPortError as e:
+        print('''\nerror: %s
 
-                    if json_file:
-                        out_fname = fname + '_%d' % count + JSON_FILE_EXTENSION
-                        with open(out_fname, 'w') as f:
-                            f.write(json.dumps(flight))
-
-        # Change sampling frequency.
-        if command == 'setup':
-            print('Reading flight data. Do not disconnect the altimeter')
-            if altimeter.set_sampling_frequency(frequency):
-                print('Success')
-            else:
-                print('Failure')
-
-    except flydreamdevice.FlyDreamDeviceException as e:
-        print('Error while communicating with the altimeter: %s' %
-                e.message)
-        return 2
-    finally:
-        print('Closing altimeter on %s' % altimeter.port)
-        altimeter.close()
+Please ensure that:
+ - your altimeter is plugged to the USB adapter.
+ - the USB adapter is plugged to your computer.
+ - the given port is correct.
+ - the USB adapter driver is properly installed on your computer, see
+   http://www.silabs.com/products/mcu/pages/usbtouartbridgevcpdrivers.aspx'''
+   % e.message)
+        return 1
 
     return 0
 
