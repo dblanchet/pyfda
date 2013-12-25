@@ -139,6 +139,10 @@ class TestFlyDreamDataParser(unittest.TestCase):
         self.assertTrue(len(result.records) > 0,
                 'Incorrect flight record count')
         self.assertEqual(8.0, result.sampling_freq, 'Incorrect sampling freq')
+        self.assertEqual(DataParser.LENGTH_UNIT_METER,
+                result.length_unit, 'Incorrect length unit')
+        self.assertEqual(DataParser.TEMPERATURE_UNIT_CELSIUS,
+                result.temperature_unit, 'Incorrect temperature unit')
 
         # Test first record.
         seconds, celcius, meters = result.records[0]
@@ -166,10 +170,18 @@ class TestFlyDreamDataParser(unittest.TestCase):
         self.assertEqual(8, first.sampling_freq)  # 8 hertz sampling.
         self.assertTrue(len(first.records) > 0, 'Empty data')
         self.assertEqual(440, len(first.records), 'Incorrect data length')
+        self.assertEqual(DataParser.LENGTH_UNIT_METER,
+                first.length_unit, 'Incorrect length unit')
+        self.assertEqual(DataParser.TEMPERATURE_UNIT_CELSIUS,
+                first.temperature_unit, 'Incorrect temperature unit')
 
         self.assertEqual(8, second.sampling_freq)  # 8 hertz sampling.
         self.assertTrue(len(second.records) > 0, 'Empty data')
         self.assertEqual(8, len(second.records), 'Incorrect data length')
+        self.assertEqual(DataParser.LENGTH_UNIT_METER,
+                second.length_unit, 'Incorrect length unit')
+        self.assertEqual(DataParser.TEMPERATURE_UNIT_CELSIUS,
+                second.temperature_unit, 'Incorrect temperature unit')
 
     def test_convert_raw_flight_regular_farhenheit_feet(self):
         # A "regular" flight with 440 records at 8 Hz.
@@ -185,6 +197,10 @@ class TestFlyDreamDataParser(unittest.TestCase):
         self.assertTrue(len(result.records) > 0,
                 'Incorrect flight record count')
         self.assertEqual(8.0, result.sampling_freq, 'Incorrect sampling freq')
+        self.assertEqual(DataParser.LENGTH_UNIT_FEET,
+                result.length_unit, 'Incorrect length unit')
+        self.assertEqual(DataParser.TEMPERATURE_UNIT_FAHRENHEIT,
+                result.temperature_unit, 'Incorrect temperature unit')
 
         # Test first record.
         seconds, farhenheit, feet = result.records[0]

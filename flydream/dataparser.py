@@ -10,7 +10,8 @@ from . import serialprotocol as sp
 from collections import namedtuple
 RawFlight = namedtuple('RawFlight', 'sampling_rate, data')
 FlightRecord = namedtuple('FlightRecord', 'time, temperature, altitude')
-Flight = namedtuple('Flight', 'sampling_freq, records')
+Flight = namedtuple('Flight', 'sampling_freq, temperature_unit, length_unit, '
+                        'records')
 
 
 class DataParser:
@@ -146,7 +147,7 @@ class DataParser:
                     'Unexpected record count: found %d, expected %d' \
                             % (len(records), len(raw_flight.data) / 4.0))
 
-        return Flight(hertz, records)
+        return Flight(hertz, length_unit, temp_unit, records)
 
     def _to_fahrenheit(self, celsius):
         return celsius * 9.0 / 5.0 + 32
