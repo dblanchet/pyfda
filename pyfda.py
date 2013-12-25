@@ -215,6 +215,7 @@ def main(argv):
 
         if command == 'upload':
 
+            # Show data retrieval progression.
             def progression(read, total):
                 if read < total:
                     print('Read %d out of %d\r' % (read, total), end='')
@@ -222,14 +223,23 @@ def main(argv):
                 else:
                     print('Read %d bytes from altimeter' % total)
 
+            # Get data from device.
             print('Reading all data. Do not disconnect the altimeter...')
             raw_data = altimeter.upload(progression)
             print('All data read')
 
+            # Write raw data.
             fname_prefix = args.prefix if args.prefix \
                     else default_out_filename()
             fname = fname_prefix + RAW_FILE_EXTENSION
             raw_data.to_file(fname)
+
+            # Honor conversion requests.
+            flights = DataParser().extract_flights(raw_data.data)
+            if args.csv:
+                convert_to_csv(flights, fname_prefix)
+            if args.json:
+                convert_to_json(flights, fname_prefix)
 
     except FlyDreamAltimeterSerialPortError as e:
         print('''\nerror: %s
