@@ -216,6 +216,72 @@ class TestFlyDreamDataParser(unittest.TestCase):
         self.assertAlmostEqual(209, feet, places=1,
                 msg='Invalid record height')
 
+    def test_convert_raw_flight_regular_farhenheit_meter(self):
+        # A "regular" flight with 440 records at 8 Hz.
+        sample = UploadedData.from_file(
+                'test/test_flydreamaltimeter_sample_1_flight.fda').data
+        flights = self._parser._split_raw_flight(sample)
+        self.assertEqual(1, len(flights), 'Incorrect flight count')
+        flight, = flights
+
+        result = self._parser._convert_raw_flight(flight,
+                DataParser.LENGTH_UNIT_METER,
+                DataParser.TEMPERATURE_UNIT_FAHRENHEIT)
+        self.assertTrue(len(result.records) > 0,
+                'Incorrect flight record count')
+        self.assertEqual(8.0, result.sampling_freq, 'Incorrect sampling freq')
+        self.assertEqual(DataParser.LENGTH_UNIT_METER,
+                result.length_unit, 'Incorrect length unit')
+        self.assertEqual(DataParser.TEMPERATURE_UNIT_FAHRENHEIT,
+                result.temperature_unit, 'Incorrect temperature unit')
+
+        # Test first record.
+        seconds, farhenheit, meters = result.records[0]
+        self.assertEqual(0.0, seconds, 'Invalid record timestamp')
+        self.assertEqual(77, farhenheit, 'Invalid record temperature')
+        self.assertAlmostEqual(63.6, meters, places=1,
+                msg='Invalid record height')
+
+        # Test arbitrary record.
+        seconds, farhenheit, meters = result.records[9]
+        self.assertEqual(1.125, seconds, 'Invalid record timestamp')
+        self.assertEqual(77, farhenheit, 'Invalid record temperature')
+        self.assertAlmostEqual(63.6, meters, places=1,
+                msg='Invalid record height')
+
+    def test_convert_raw_flight_regular_celsius_meters(self):
+        # A "regular" flight with 440 records at 8 Hz.
+        sample = UploadedData.from_file(
+                'test/test_flydreamaltimeter_sample_1_flight.fda').data
+        flights = self._parser._split_raw_flight(sample)
+        self.assertEqual(1, len(flights), 'Incorrect flight count')
+        flight, = flights
+
+        result = self._parser._convert_raw_flight(flight,
+                DataParser.LENGTH_UNIT_METER,
+                DataParser.TEMPERATURE_UNIT_FAHRENHEIT)
+        self.assertTrue(len(result.records) > 0,
+                'Incorrect flight record count')
+        self.assertEqual(8.0, result.sampling_freq, 'Incorrect sampling freq')
+        self.assertEqual(DataParser.LENGTH_UNIT_METER,
+                result.length_unit, 'Incorrect length unit')
+        self.assertEqual(DataParser.TEMPERATURE_UNIT_FAHRENHEIT,
+                result.temperature_unit, 'Incorrect temperature unit')
+
+        # Test first record.
+        seconds, farhenheit, meters = result.records[0]
+        self.assertEqual(0.0, seconds, 'Invalid record timestamp')
+        self.assertEqual(77, farhenheit, 'Invalid record temperature')
+        self.assertAlmostEqual(63.6, meters, places=1,
+                msg='Invalid record height')
+
+        # Test arbitrary record.
+        seconds, farhenheit, meters = result.records[9]
+        self.assertEqual(1.125, seconds, 'Invalid record timestamp')
+        self.assertEqual(77, farhenheit, 'Invalid record temperature')
+        self.assertAlmostEqual(63.6, meters, places=1,
+                msg='Invalid record height')
+
 
 if __name__ == '__main__':
     unittest.main()

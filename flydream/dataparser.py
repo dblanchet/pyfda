@@ -147,7 +147,7 @@ class DataParser:
                     'Unexpected record count: found %d, expected %d' \
                             % (len(records), len(raw_flight.data) / 4.0))
 
-        return Flight(hertz, length_unit, temp_unit, records)
+        return Flight(hertz, temp_unit, length_unit, records)
 
     def _to_fahrenheit(self, celsius):
         return celsius * 9.0 / 5.0 + 32
