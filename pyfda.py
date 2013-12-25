@@ -198,7 +198,7 @@ def main(argv):
         return 0
 
     # Remaining command requires a connected altimeter.
-    altimeter = Altimeter()
+    altimeter = Altimeter(args.port)
 
     # Erase all data.
     try:
