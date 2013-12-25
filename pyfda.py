@@ -17,6 +17,12 @@ RAW_FILE_EXTENSION = '.fda'
 CSV_FILE_EXTENSION = '.csv'
 JSON_FILE_EXTENSION = '.json'
 
+CELSIUS_UNIT = '°C'
+FAHRENHEIT_UNIT = '°F'
+
+METER_UNIT = 'm'
+FOOT_UNIT = 'ft'
+
 
 def parse_command_line():
     # Setup parser.
@@ -29,6 +35,7 @@ def parse_command_line():
             choices=['upload', 'setup', 'clear', 'convert', 'info'],
             help='With connected altimeter: "upload", "setup" or "clear"\n'
             'With raw data file: "convert" or "info"')  # \n\n'
+            # TODO: How to format help properly?
             #'upload  - Get all flight data from the Altimeter\n'
             #'setup   - Change altimeter sampling frequency\n'
             #'clear   - Erase all flight data on the Device\n\n'
@@ -101,14 +108,35 @@ def parse_command_line():
         if not args.csv and not args.json:
             args.csv = True
 
+    # Set temperature units, defaults to celsius.
+    if args.celsius and args.fahrenheit:
+            print('error: --celsius and --fahrenheit can not '
+                    'be both specified.')
+            return None
+
+    args.temp_unit = DataParser.TEMPERATURE_UNIT_CELSIUS
+    if args.fahrenheit:
+        args.temp_unit = DataParser.TEMPERATURE_UNIT_FAHRENHEIT
+
+    # Set length unit, defaults to meters.
+    if args.meters and args.feet:
+            print('error: --meters and --feet can not be both specified.')
+            return None
+
+    args.length_unit = DataParser.LENGTH_UNIT_METER
+    if args.feet:
+        args.length_unit = DataParser.LENGTH_UNIT_FEET
+
     return args
 
 
-def read_fda_file(fda_file):
+def read_fda_file(fda_file, length_unit=DataParser.LENGTH_UNIT_METER,
+        temp_unit=DataParser.TEMPERATURE_UNIT_CELSIUS):
     print('Reading file %s...' % fda_file)
     raw_flights = UploadedData.from_file(fda_file)
 
-    flights = DataParser().extract_flights(raw_flights.data)
+    parser = DataParser(length_unit, temp_unit)
+    flights = parser.extract_flights(raw_flights.data)
     print('Found %d flights:' % len(flights))
 
     return flights
@@ -119,34 +147,47 @@ def print_file_info(fda_file):
     for idx, flight in enumerate(flights):
         duration = flight.records[-1].time + 1.0 / flight.sampling_freq
         print('   %d: %8d records @ %dHz -%10.3f seconds' %
-                (idx, len(flight.records),
-                    flight.sampling_freq, duration))
+                (idx, len(flight.records), flight.sampling_freq, duration))
 
 
 def default_out_filename():
     return time.strftime('%Y-%m-%d %H-%M-%S', time.localtime()) + '_flight'
 
 
-def convert_to_csv(flights, out_prefix=None):
+def length_unit_string(length_unit):
+    return {
+            DataParser.LENGTH_UNIT_METER: METER_UNIT,
+            DataParser.LENGTH_UNIT_FEET: FOOT_UNIT
+    }[length_unit]
+
+
+def temperature_unit_string(temp_unit):
+    return {
+            DataParser.TEMPERATURE_UNIT_CELSIUS: CELSIUS_UNIT,
+            DataParser.TEMPERATURE_UNIT_FAHRENHEIT: FAHRENHEIT_UNIT
+    }[temp_unit]
+
+
+def convert_to_csv(flights, out_prefix):
     for idx, flight in enumerate(flights):
         fname = out_prefix + '_%3.3d' % idx + CSV_FILE_EXTENSION
         print('   Writing %s file' % fname)
+        length_unit = length_unit_string(flight.length_unit)
+        temp_unit = temperature_unit_string(flight.temperature_unit)
         with open(fname, 'w') as f:
-            temp_unit = '°C'  # TODO Fahrenheit
-            length_unit = 'm'  # TODO Feet
             f.write('time(sec),temperature(%s),altitude(%s)\n'
                     % (temp_unit, length_unit))
             for rec in flight.records:
                 f.write('%.3f,%d,%.1f\n' % rec)
 
 
-def convert_to_json(flights, out_prefix=None):
+def convert_to_json(flights, out_prefix):
     for idx, flight in enumerate(flights):
         fname = out_prefix + '_flight_%3.3d' % idx + JSON_FILE_EXTENSION
 
         # Prepare header.
-        temp_unit = 'celsius'  # TODO Fahrenheit
-        length_unit = 'meters'  # TODO Feet
+        length_unit = length_unit_string(flight.length_unit)
+        temp_unit = temperature_unit_string(flight.temperature_unit)
         root = {
                 'info': {
                     'temperature_unit': temp_unit,
@@ -186,12 +227,11 @@ def main(argv):
 
     # Convert raw uploaded data.
     if command == 'convert':
-        flights = read_fda_file(args.fda_file)
+        flights = read_fda_file(args.fda_file,
+                args.length_unit, args.temp_unit)
         fname_prefix = args.prefix if args.prefix else default_out_filename()
-
         if args.csv:
             convert_to_csv(flights, fname_prefix)
-
         if args.json:
             convert_to_json(flights, fname_prefix)
 
@@ -235,7 +275,8 @@ def main(argv):
             raw_data.to_file(fname)
 
             # Honor conversion requests.
-            flights = DataParser().extract_flights(raw_data.data)
+            parser = DataParser(args.length_unit, args.temp_unit)
+            flights = parser.extract_flights(raw_data.data)
             if args.csv:
                 convert_to_csv(flights, fname_prefix)
             if args.json:
