@@ -49,6 +49,11 @@ class TestFlyDreamDevice(unittest.TestCase):
         self.assertEqual(self._altimeter.port, UNEXISTING_PORT,
                 'Incorrect port')
 
+    def test_default_port_selection(self):
+        altimeter = Altimeter()
+        self.assertEqual(altimeter.port, altimeter._default_serial_port(),
+                'Incorrect port')
+
     def test_setup(self):
         with self.assertRaises(ValueError):
             self._altimeter.setup('a')  # Not a number.
