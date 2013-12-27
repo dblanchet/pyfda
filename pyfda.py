@@ -282,6 +282,8 @@ def main(argv):
             # Get data from device.
             print_disconnection_warning('Reading data')
             raw_data = altimeter.upload(progression)
+            if len(raw_data.data) == 0:
+                print('   Altimeter does not contain any data')
 
             # Write raw data.
             fname_prefix = args.prefix if args.prefix \
