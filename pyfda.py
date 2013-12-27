@@ -258,16 +258,18 @@ def main(argv):
     # Remaining command requires a connected altimeter.
     altimeter = Altimeter(args.port)
 
-    # Erase all data.
     try:
+        # Erase all data.
         if command == 'clear':
             print_disconnection_warning('Erasing all data')
             altimeter.clear()
 
+        # Change sampling frequency.
         if command == 'setup':
             print_disconnection_warning('Setting sampling frequency')
             altimeter.setup(args.frequency)
 
+        # Get all altimeter data.
         if command == 'upload':
 
             # Show data retrieval progression.
