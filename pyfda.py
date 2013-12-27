@@ -245,33 +245,31 @@ def main(argv):
         if command == 'clear':
             print('Erasing all data. Do not disconnect the altimeter...')
             altimeter.clear()
-            print('All data erased')
 
         if command == 'setup':
             print('Setting sampling frequency. '
                     'Do not disconnect the altimeter...')
             altimeter.setup(args.frequency)
-            print('All data erased')
 
         if command == 'upload':
 
             # Show data retrieval progression.
             def progression(read, total):
                 if read < total:
-                    print('Read %d out of %d\r' % (read, total), end='')
+                    print('Read %d out of %d bytes \r' % (read, total), end='')
                     sys.stdout.flush()
                 else:
                     print('Read %d bytes from altimeter' % total)
 
             # Get data from device.
-            print('Reading all data. Do not disconnect the altimeter...')
+            print('Reading data. Do not disconnect the altimeter...')
             raw_data = altimeter.upload(progression)
-            print('All data read')
 
             # Write raw data.
             fname_prefix = args.prefix if args.prefix \
                     else default_out_filename()
             fname = fname_prefix + RAW_FILE_EXTENSION
+            print('Writing uploaded data to', fname)
             raw_data.to_file(fname)
 
             # Honor conversion requests.
