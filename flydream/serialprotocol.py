@@ -23,7 +23,4 @@ RESPONSE_SETUP_PREFIX = '\x07\x0F\xDA\x10\x00\xCA\03'
 RAW_DATA_HEADER_LENGTH = 12
 
 # Flights are separated by sequences of 32 bytes.
-#
-# Doc says last byte should be \x03,
-# device says otherwise.
-RAW_FLIGHTS_SEPARATOR = '\xFF' * 30 + '\x00'
+RAW_FLIGHTS_SEPARATOR = '\xFF' * 30 + '\x03'
