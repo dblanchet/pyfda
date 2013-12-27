@@ -72,7 +72,7 @@ class DataParser:
         return data_size, max_size
 
     def extract_flights(self, uploaded_data):
-        # Parse raw data according to given units.
+        ''' Parse raw data according to given units.'''
         return self._parse_raw_data(uploaded_data,
                 self.length_unit, self.temperature_unit)
 
@@ -151,12 +151,17 @@ class DataParser:
         return Flight(hertz, temp_unit, length_unit, records)
 
     def _to_fahrenheit(self, celsius):
+        # Formula taken from Google search.
         return celsius * 9.0 / 5.0 + 32
 
     def _to_elevation(self, pressure, reference, unit):
+        # Fly-Dream specifications provide this formula.
         meters = 44330 * (1 - (1.0 * pressure / reference) ** (1 / 5.255))
+
+        # Convert to wanted units.
         if unit == self.LENGTH_UNIT_FEET:
             result = round(meters * 3.2808)
         else:
             result = round(meters, 1)
+
         return result

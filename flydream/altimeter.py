@@ -46,6 +46,7 @@ class Altimeter:
     _freq_list = sorted(_freq_to_rate.keys())
 
     def _default_serial_port(self):
+        ''' Default port depends on the platform.'''
         return {
             'Windows': self.WINDOWS_SERIAL_PORT,
             'Darwin': self.MAC_SERIAL_PORT,

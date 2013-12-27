@@ -54,6 +54,11 @@ class SerialDevice:
 
     @contextmanager
     def opened(self):
+        ''' Open and close serial device.
+
+        Ensure serial device is opened before any
+        interaction and always closed afterwards,
+        even if the requested operation failed.'''
         self._open()
         try:
             yield self
@@ -61,7 +66,7 @@ class SerialDevice:
             self._close()
 
     def clear(self):
-        # Send reset flight data command.
+        ''' Send reset flight data command.'''
         self._write(sp.COMMAND_CLEAR)
 
         # Read response.
@@ -74,6 +79,8 @@ class SerialDevice:
         return True
 
     def setup(self, rate):
+        ''' Send sampling rate setup command.'''
+
         # Check argument validity.
         if rate not in [sp.FREQ_1_HERTZ, sp.FREQ_2_HERTZ,
                 sp.FREQ_4_HERTZ, sp.FREQ_8_HERTZ]:
@@ -93,7 +100,7 @@ class SerialDevice:
         return True
 
     def upload(self, callback=None):
-        # Send flight data retrieval command.
+        ''' Send flight data retrieval command.'''
         self._write(sp.COMMAND_UPLOAD)
 
         # 1. Header is fixed-length.
