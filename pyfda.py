@@ -266,7 +266,7 @@ def main(argv):
 
         # Change sampling frequency.
         if command == 'setup':
-            print_disconnection_warning('Setting sampling frequency')
+            print('Setting sampling frequency...')
             altimeter.setup(args.frequency)
 
         # Get all altimeter data.
