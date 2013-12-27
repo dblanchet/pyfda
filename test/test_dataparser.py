@@ -282,6 +282,31 @@ class TestFlyDreamDataParser(unittest.TestCase):
         self.assertAlmostEqual(63.6, meters, places=1,
                 msg='Invalid record height')
 
+    def test_various_sampling_frequencies(self):
+        # 4 flights:
+        #    0:      216 records @ 2Hz -   108.000 seconds
+        #    1:      136 records @ 1Hz -   136.000 seconds
+        #    2:      496 records @ 8Hz -    62.000 seconds
+        #    3:      176 records @ 4Hz -    44.000 seconds
+        sample = UploadedData.from_file(
+                'test/test_freq_2_then_1_then_8_then_4.fda')
+        result = self._parser.extract_flights(sample.data)
+
+        self.assertEqual(4, len(result), 'Incorrect flight count')
+        first, second, third, fourth = result
+
+        self.assertEqual(2, first.sampling_freq)
+        self.assertEqual(216, len(first.records), 'Incorrect data length')
+
+        self.assertEqual(1, second.sampling_freq)
+        self.assertEqual(136, len(second.records), 'Incorrect data length')
+
+        self.assertEqual(8, third.sampling_freq)
+        self.assertEqual(496, len(third.records), 'Incorrect data length')
+
+        self.assertEqual(4, fourth.sampling_freq)
+        self.assertEqual(176, len(fourth.records), 'Incorrect data length')
+
 
 if __name__ == '__main__':
     unittest.main()

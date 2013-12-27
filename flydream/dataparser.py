@@ -79,7 +79,13 @@ class DataParser:
     def _make_flight(self, flight_data_chunck):
         # First byte of chunck tells us about sampling rate.
         # The remaining bytes are raw records.
-        return RawFlight(flight_data_chunck[0], flight_data_chunck[1:])
+        #
+        # Expected pattern:
+        #    <constant_byte> <sampling_rate> <data_records...>
+        #
+        # Ignore first byte, as it value does not
+        # seem to be always compliant with specifications.
+        return RawFlight(flight_data_chunck[1], flight_data_chunck[2:])
 
     def _split_raw_flight(self, data):
         chunks = data.split(sp.RAW_FLIGHTS_SEPARATOR)

@@ -23,4 +23,12 @@ RESPONSE_CLEAR        = '\x07\x0F\xDA\x10\x00\xCC\03\x00'
 RAW_DATA_HEADER_LENGTH = 12
 
 # Flights are separated by sequences of 32 bytes.
-RAW_FLIGHTS_SEPARATOR = '\xFF' * 30 + '\x03'
+#
+# First 30 bytes are 0xFF bytes.
+#
+# Next one should always be 0x03,
+# but it was found to be also 0x00.
+# So it will be ignored by the parser.
+#
+# Last byte tells the sampling rate.
+RAW_FLIGHTS_SEPARATOR = '\xFF' * 30  # + '\x03'
