@@ -211,6 +211,15 @@ def convert_to_json(flights, out_prefix):
             f.write(json.dumps(root, indent=2, separators=(',', ': ')))
 
 
+def convert_raw_data(flights, fname_prefix, args):
+    if args.csv:
+        print('Converting flight data to CSV...')
+        convert_to_csv(flights, fname_prefix)
+    if args.json:
+        print('Converting flight data to JSON...')
+        convert_to_json(flights, fname_prefix)
+
+
 def main(argv):
 
     # Check command line argument.
@@ -230,11 +239,7 @@ def main(argv):
         flights = read_fda_file(args.fda_file,
                 args.length_unit, args.temp_unit)
         fname_prefix = args.prefix if args.prefix else default_out_filename()
-        if args.csv:
-            convert_to_csv(flights, fname_prefix)
-        if args.json:
-            convert_to_json(flights, fname_prefix)
-
+        convert_raw_data(flights, fname_prefix, args)
         return 0
 
     # Remaining command requires a connected altimeter.
@@ -275,10 +280,7 @@ def main(argv):
             # Honor conversion requests.
             parser = DataParser(args.length_unit, args.temp_unit)
             flights = parser.extract_flights(raw_data.data)
-            if args.csv:
-                convert_to_csv(flights, fname_prefix)
-            if args.json:
-                convert_to_json(flights, fname_prefix)
+            convert_raw_data(flights, fname_prefix, args)
 
     except FlyDreamAltimeterSerialPortError as e:
         print('''\nerror: %s
