@@ -7,17 +7,17 @@ FREQ_8_HERTZ = '\x03'
 
 # Device capacity information.
 EMPTY_ALTIMETER = 0x020000
-FULL_ALTIMETER = 0x100000
+FULL_ALTIMETER  = 0x100000
 
 # Serial commands.
-COMMAND_CLEAR = '\x0F\xDA\x10\x00\xCC\03\x00'
-COMMAND_UPLOAD = '\x0F\xDA\x10\x00\xCA\03\x00'
-COMMAND_SETUP_PREFIX = '\x0F\xDA\x10\x00\xCA\03'
+COMMAND_UPLOAD       = '\x0F\xDA\x10\x00\xCA\03\x00'
+COMMAND_SETUP_PREFIX = '\x0F\xDA\x10\x00\xCB\03'
+COMMAND_CLEAR        = '\x0F\xDA\x10\x00\xCC\03\x00'
 
 # Serial commands expected responses.
-RESPONSE_CLEAR = '\x07\x0F\xDA\x10\x00\xCC\03\x00'
-RESPONSE_UPLOAD = '\x07\x0F\xDA\x10\x00\xCA\03\x00'
-RESPONSE_SETUP_PREFIX = '\x07\x0F\xDA\x10\x00\xCA\03'
+RESPONSE_UPLOAD       = '\x07\x0F\xDA\x10\x00\xCA\03\x00'
+RESPONSE_SETUP_PREFIX = '\x07\x0F\xDA\x10\x00\xCB\03'
+RESPONSE_CLEAR        = '\x07\x0F\xDA\x10\x00\xCC\03\x00'
 
 # Uploaded data header size.
 RAW_DATA_HEADER_LENGTH = 12
