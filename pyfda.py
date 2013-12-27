@@ -120,9 +120,9 @@ def parse_command_line():
 
     # Set temperature units, defaults to celsius.
     if args.celsius and args.fahrenheit:
-            print('error: --celsius and --fahrenheit can not '
-                    'be both specified.')
-            return None
+        print('error: --celsius and --fahrenheit can not '
+                'be both specified.')
+        return None
 
     args.temp_unit = DataParser.TEMPERATURE_UNIT_CELSIUS
     if args.fahrenheit:
@@ -130,8 +130,8 @@ def parse_command_line():
 
     # Set length unit, defaults to meters.
     if args.meters and args.feet:
-            print('error: --meters and --feet can not be both specified.')
-            return None
+        print('error: --meters and --feet can not be both specified.')
+        return None
 
     args.length_unit = DataParser.LENGTH_UNIT_METER
     if args.feet:
