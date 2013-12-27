@@ -6,6 +6,7 @@ import StringIO
 
 from flydream.serialdevice import SerialDevice
 from flydream.exception import FlyDreamAltimeterReadError, \
+        FlyDreamAltimeterWriteError, \
         FlyDreamAltimeterSerialPortError, \
         FlyDreamAltimeterProtocolError
 
@@ -16,9 +17,11 @@ UNEXISTING_PORT = 'unexisting'
 
 class SerialMock:
 
-    def __init__(self, content):
+    def __init__(self, content, write_len=None):
         self._readBuf = StringIO.StringIO(content)
         self._writeBuf = ''
+
+        self.write_len = write_len
 
         self.open_count = 0
         self.close_count = 0
@@ -31,7 +34,7 @@ class SerialMock:
 
     def write(self, data):
         self._writeBuf += data
-        return len(data)
+        return len(data) if not self.write_len else self.write_len
 
     def read(self, size):
         return self._readBuf.read(size)
@@ -64,6 +67,14 @@ class TestFlyDreamDevice(unittest.TestCase):
         self._device.clear()
 
         self.assertEqual(serialMock.received(), expectedWrite)
+
+    def test_clear_write_error(self):
+        expectedRead = sp.RESPONSE_CLEAR
+        serialMock = SerialMock(expectedRead, 4)  # 8 bytes should be written.
+        self._device._serial_port = serialMock
+
+        with self.assertRaises(FlyDreamAltimeterWriteError):
+            self._device.clear()
 
     def test_clear_incomplete_response(self):
         expectedRead = sp.RESPONSE_CLEAR[:4]  # 8 bytes are expected.
