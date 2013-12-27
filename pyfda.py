@@ -220,6 +220,12 @@ def convert_raw_data(flights, fname_prefix, args):
         convert_to_json(flights, fname_prefix)
 
 
+def print_disconnection_warning(message):
+    print('''%s...
+WARNING: Do not disconnect the altimeter until the blue LED lights again.'''
+    % message)
+
+
 def main(argv):
 
     # Check command line argument.
@@ -248,12 +254,11 @@ def main(argv):
     # Erase all data.
     try:
         if command == 'clear':
-            print('Erasing all data. Do not disconnect the altimeter...')
+            print_disconnection_warning('Erasing all data')
             altimeter.clear()
 
         if command == 'setup':
-            print('Setting sampling frequency. '
-                    'Do not disconnect the altimeter...')
+            print_disconnection_warning('Setting sampling frequency')
             altimeter.setup(args.frequency)
 
         if command == 'upload':
@@ -261,13 +266,14 @@ def main(argv):
             # Show data retrieval progression.
             def progression(read, total):
                 if read < total:
-                    print('Read %d out of %d bytes \r' % (read, total), end='')
+                    print('   %d bytes read out of %d\r' % (read, total),
+                            end='')
                     sys.stdout.flush()
                 else:
                     print('Read %d bytes from altimeter' % total)
 
             # Get data from device.
-            print('Reading data. Do not disconnect the altimeter...')
+            print_disconnection_warning('Reading data')
             raw_data = altimeter.upload(progression)
 
             # Write raw data.
