@@ -5,6 +5,7 @@ from __future__ import print_function
 
 import sys
 import argparse
+import textwrap
 import time
 import json
 
@@ -27,20 +28,29 @@ FOOT_UNIT = 'ft'
 def parse_command_line():
     # Setup parser.
     parser = argparse.ArgumentParser(
-            description='Interact with FlyDream Altimeter (FDA) device.')
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            description=textwrap.dedent('''\
+                    Interact with FlyDream Altimeter (FDA) device and data.
+
+                        Available device commands:
+                            upload  - Get all flight data from the Altimeter
+                            setup   - Change altimeter sampling frequency
+                            clear   - Erase all flight data on the Device
+
+                        Available data (FDA file) commands:
+                            info    - Print a summary of flight data file
+                            convert - Convert data to various formats
+                    '''),
+            epilog='Unrelevant arguments for given command are silently '
+            'ignored.')
 
     # Command: What to do.
     group = parser.add_argument_group('Available commands')
     group.add_argument('command',
             choices=['upload', 'setup', 'clear', 'convert', 'info'],
-            help='With connected altimeter: "upload", "setup" or "clear"\n'
-            'With raw data file: "convert" or "info"')  # \n\n'
-            # TODO: How to format help properly?
-            #'upload  - Get all flight data from the Altimeter\n'
-            #'setup   - Change altimeter sampling frequency\n'
-            #'clear   - Erase all flight data on the Device\n\n'
-            #'info    - Print a summary of flight data\n'
-            #'convert - Convert raw altimeter data to various formats')
+            help='"upload", "setup" and "clear" commands require a '
+            'connected altimeter. "convert" and "info" commands require '
+            'a raw .fda file argument.')
 
     # Device related arguments.
     group = parser.add_argument_group('Altimeter configuration')
