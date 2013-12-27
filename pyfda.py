@@ -72,6 +72,9 @@ def parse_command_line():
     group.add_argument('--prefix',
             help='Prefix of generated files (with "upload" or "convert" '
             ' commands). Use current date/time as default.')
+    group.add_argument('--last', type=int, default=0, nargs='?',
+            help='Convert LAST lastest flights only (with "convert"). '
+            'Default: 1.')
 
     # Generated file units.
     group = parser.add_argument_group('Conversion units '
@@ -97,7 +100,7 @@ def parse_command_line():
 
     # Extract arguments.
     args = parser.parse_args()
-    #print(args)
+    #print(args)  # DEBUG
 
     # Check argument coherency.
     command = args.command
@@ -136,6 +139,15 @@ def parse_command_line():
     args.length_unit = DataParser.LENGTH_UNIT_METER
     if args.feet:
         args.length_unit = DataParser.LENGTH_UNIT_FEET
+
+    # Conversion flight count.
+    if args.last is None:
+        # Specified without count: default to 1.
+        args.last = 1
+
+    if args.last < 0:
+        print('error: --last argument must be positive.')
+        return None
 
     return args
 
@@ -180,10 +192,13 @@ def temperature_unit_to_string(temp_unit):
     }[temp_unit]
 
 
-def convert_to_csv(flights, out_prefix):
-    for idx, flight in enumerate(flights):
+def convert_to_csv(flights, out_prefix, count=0):
+    count_start = len(flights) - len(flights[-count:])
 
-        fname = out_prefix + '_%3.3d' % idx + CSV_FILE_EXTENSION
+    for idx, flight in enumerate(flights[-count:]):
+
+        fname = out_prefix + '_%3.3d' % (idx + count_start) \
+                + CSV_FILE_EXTENSION
         print('   Writing %s file' % fname)
 
         length_unit = length_unit_to_string(flight.length_unit)
@@ -196,9 +211,12 @@ def convert_to_csv(flights, out_prefix):
                 f.write('%.3f,%d,%.1f\n' % rec)
 
 
-def convert_to_json(flights, out_prefix):
-    for idx, flight in enumerate(flights):
-        fname = out_prefix + '_%3.3d' % idx + JSON_FILE_EXTENSION
+def convert_to_json(flights, out_prefix, count=0):
+    count_start = len(flights) - len(flights[-count:])
+
+    for idx, flight in enumerate(flights[-count:]):
+        fname = out_prefix + '_%3.3d' % (idx + count_start) \
+                + JSON_FILE_EXTENSION
 
         # Prepare header.
         length_unit = length_unit_to_string(flight.length_unit)
@@ -230,11 +248,11 @@ def convert_flights(flights, fname_prefix, args):
 
     if args.csv:
         print('Converting flight data to CSV...')
-        convert_to_csv(flights, fname_prefix)
+        convert_to_csv(flights, fname_prefix, args.last)
 
     if args.json:
         print('Converting flight data to JSON...')
-        convert_to_json(flights, fname_prefix)
+        convert_to_json(flights, fname_prefix, args.last)
 
 
 def print_disconnection_warning(message):
