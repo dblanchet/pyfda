@@ -30,10 +30,7 @@ class SerialDevice_TestHelper:
 class Altimeter_TestHelper(Altimeter):
 
     def __init__(self):
-        try:
-            Altimeter.__init__(self, port=UNEXISTING_PORT)
-        except FlyDreamAltimeterSerialPortError:
-            pass
+        Altimeter.__init__(self, port=UNEXISTING_PORT)
         self._device = SerialDevice_TestHelper()
 
 
