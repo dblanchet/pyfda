@@ -148,11 +148,6 @@ class DataParser:
             # Update timestamp.
             rel_time += timeslice
 
-        if len(records) != len(raw_flight.data) / 4.0:
-            raise FlyDreamAltimeterProtocolError(
-                    'Unexpected record count: found %d, expected %d' \
-                            % (len(records), len(raw_flight.data) / 4.0))
-
         return Flight(hertz, temp_unit, length_unit, records)
 
     def _to_fahrenheit(self, celsius):
