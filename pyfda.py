@@ -183,7 +183,7 @@ def convert_to_csv(flights, out_prefix):
 
 def convert_to_json(flights, out_prefix):
     for idx, flight in enumerate(flights):
-        fname = out_prefix + '_flight_%3.3d' % idx + JSON_FILE_EXTENSION
+        fname = out_prefix + '_%3.3d' % idx + JSON_FILE_EXTENSION
 
         # Prepare header.
         length_unit = length_unit_string(flight.length_unit)
