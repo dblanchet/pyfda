@@ -248,11 +248,11 @@ def convert_to_json(flights, out_prefix, count=0):
 def convert_flights(flights, fname_prefix, args):
 
     if args.csv:
-        print('Converting flight data to CSV...')
+        print('Converting %d flight(s) to CSV...' % args.last)
         convert_to_csv(flights, fname_prefix, args.last)
 
     if args.json:
-        print('Converting flight data to JSON...')
+        print('Converting %d flight(s) to JSON...' % args.last)
         convert_to_json(flights, fname_prefix, args.last)
 
 
