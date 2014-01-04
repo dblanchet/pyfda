@@ -8,8 +8,6 @@ from flydream import serialprotocol as sp
 
 from flydream.dataparser import DataParser, RawFlight
 
-# TODO Test other distance and temperature units.
-
 
 class TestFlyDreamDataParser(unittest.TestCase):
 
