@@ -77,7 +77,7 @@ class TestFlyDreamDataParser(unittest.TestCase):
 
     def test_raw_split_raw_flight_single(self):
         sample = UploadedData.from_file(
-                'test/test_flydreamaltimeter_sample_1_flight.fda').data
+                'tests/test_flydreamaltimeter_sample_1_flight.fda').data
         result = self._parser._split_raw_flight(sample)
         self.assertEqual(1, len(result), 'Incorrect flight count')
 
@@ -87,7 +87,7 @@ class TestFlyDreamDataParser(unittest.TestCase):
 
     def test_raw_split_raw_flight_several(self):
         sample = UploadedData.from_file(
-                'test/test_flydreamaltimeter_sample_2_flights.fda').data
+                'tests/test_flydreamaltimeter_sample_2_flights.fda').data
         result = self._parser._split_raw_flight(sample)
 
         self.assertEqual(2, len(result), 'Incorrect flight count')
@@ -112,7 +112,7 @@ class TestFlyDreamDataParser(unittest.TestCase):
 
     def test_convert_raw_flight_wrong_length(self):
         sample = UploadedData.from_file(
-                'test/test_flydreamaltimeter_sample_1_flight.fda').data
+                'tests/test_flydreamaltimeter_sample_1_flight.fda').data
         flights = self._parser._split_raw_flight(sample)
         self.assertEqual(1, len(flights), 'Incorrect flight count')
         flight, = flights
@@ -128,7 +128,7 @@ class TestFlyDreamDataParser(unittest.TestCase):
     def test_convert_raw_flight_regular(self):
         # A "regular" flight with 440 records at 8 Hz.
         sample = UploadedData.from_file(
-                'test/test_flydreamaltimeter_sample_1_flight.fda').data
+                'tests/test_flydreamaltimeter_sample_1_flight.fda').data
         flights = self._parser._split_raw_flight(sample)
         self.assertEqual(1, len(flights), 'Incorrect flight count')
         flight, = flights
@@ -162,7 +162,7 @@ class TestFlyDreamDataParser(unittest.TestCase):
     def test_extract_flight(self):
         # A "regular" flight with 440 records at 8 Hz.
         sample = UploadedData.from_file(
-                'test/test_flydreamaltimeter_sample_2_flights.fda')
+                'tests/test_flydreamaltimeter_sample_2_flights.fda')
         result = self._parser.extract_flights(sample.data)
 
         self.assertEqual(2, len(result), 'Incorrect flight count')
@@ -187,7 +187,7 @@ class TestFlyDreamDataParser(unittest.TestCase):
     def test_convert_raw_flight_regular_farhenheit_feet(self):
         # A "regular" flight with 440 records at 8 Hz.
         sample = UploadedData.from_file(
-                'test/test_flydreamaltimeter_sample_1_flight.fda').data
+                'tests/test_flydreamaltimeter_sample_1_flight.fda').data
         flights = self._parser._split_raw_flight(sample)
         self.assertEqual(1, len(flights), 'Incorrect flight count')
         flight, = flights
@@ -221,7 +221,7 @@ class TestFlyDreamDataParser(unittest.TestCase):
     def test_convert_raw_flight_regular_farhenheit_meter(self):
         # A "regular" flight with 440 records at 8 Hz.
         sample = UploadedData.from_file(
-                'test/test_flydreamaltimeter_sample_1_flight.fda').data
+                'tests/test_flydreamaltimeter_sample_1_flight.fda').data
         flights = self._parser._split_raw_flight(sample)
         self.assertEqual(1, len(flights), 'Incorrect flight count')
         flight, = flights
@@ -255,7 +255,7 @@ class TestFlyDreamDataParser(unittest.TestCase):
     def test_convert_raw_flight_regular_celsius_meters(self):
         # A "regular" flight with 440 records at 8 Hz.
         sample = UploadedData.from_file(
-                'test/test_flydreamaltimeter_sample_1_flight.fda').data
+                'tests/test_flydreamaltimeter_sample_1_flight.fda').data
         flights = self._parser._split_raw_flight(sample)
         self.assertEqual(1, len(flights), 'Incorrect flight count')
         flight, = flights
@@ -293,7 +293,7 @@ class TestFlyDreamDataParser(unittest.TestCase):
         #    2:      496 records @ 8Hz -    62.000 seconds
         #    3:      176 records @ 4Hz -    44.000 seconds
         sample = UploadedData.from_file(
-                'test/test_freq_2_then_1_then_8_then_4.fda')
+                'tests/test_freq_2_then_1_then_8_then_4.fda')
         result = self._parser.extract_flights(sample.data)
 
         self.assertEqual(4, len(result), 'Incorrect flight count')

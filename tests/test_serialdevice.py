@@ -172,7 +172,7 @@ class TestFlyDreamDevice(unittest.TestCase):
             self._device.setup(arg)
 
     def test_upload(self):
-        with open('test/test_flydreamdevice_sample.fda', 'rb') as f:
+        with open('tests/test_flydreamdevice_sample.fda', 'rb') as f:
             sample = f.read()
 
         expectedWrite = sp.COMMAND_UPLOAD
@@ -186,7 +186,7 @@ class TestFlyDreamDevice(unittest.TestCase):
         self.assertEqual(len(uploaded.data), len(sample[12:]))
 
     def test_upload_incomplete_header(self):
-        with open('test/test_flydreamdevice_sample.fda', 'rb') as f:
+        with open('tests/test_flydreamdevice_sample.fda', 'rb') as f:
             sample = f.read()
         # 8 bytes are expected.
         expectedRead = sample[:6]
@@ -197,7 +197,7 @@ class TestFlyDreamDevice(unittest.TestCase):
             self._device.upload()
 
     def test_upload_with_callback(self):
-        with open('test/test_flydreamdevice_sample.fda', 'rb') as f:
+        with open('tests/test_flydreamdevice_sample.fda', 'rb') as f:
             sample = f.read()
         serialMock = SerialMock(sample)
         self._device._serial_port = serialMock
