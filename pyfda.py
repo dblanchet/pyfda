@@ -168,10 +168,11 @@ def extract_flights(fda_file,
 
 def print_file_info(fda_file):
     flights = extract_flights(fda_file)
-    for idx, flight in enumerate(flights):
+    for flight in flights:
         duration = flight.records[-1].time + 1.0 / flight.sampling_freq
         print('   %d: %8d records @ %dHz -%10.3f seconds' %
-                (idx, len(flight.records), flight.sampling_freq, duration))
+                (flight.index, len(flight.records),
+                    flight.sampling_freq, duration))
 
 
 def default_out_filename():
@@ -195,9 +196,9 @@ def temperature_unit_to_string(temp_unit):
 def convert_to_csv(flights, out_prefix, count=0):
     count_start = len(flights) - len(flights[-count:])
 
-    for idx, flight in enumerate(flights[-count:]):
+    for flight in flights[-count:]:
 
-        fname = out_prefix + '_%3.3d' % (idx + count_start) \
+        fname = out_prefix + '_%3.3d' % (flight.index + count_start) \
                 + CSV_FILE_EXTENSION
         print('   Writing %s file' % fname)
 
@@ -214,8 +215,8 @@ def convert_to_csv(flights, out_prefix, count=0):
 def convert_to_json(flights, out_prefix, count=0):
     count_start = len(flights) - len(flights[-count:])
 
-    for idx, flight in enumerate(flights[-count:]):
-        fname = out_prefix + '_%3.3d' % (idx + count_start) \
+    for flight in flights[-count:]:
+        fname = out_prefix + '_%3.3d' % (flight.index + count_start) \
                 + JSON_FILE_EXTENSION
 
         # Prepare header.
