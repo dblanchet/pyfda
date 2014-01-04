@@ -10,8 +10,8 @@ from . import serialprotocol as sp
 from collections import namedtuple
 RawFlight = namedtuple('RawFlight', 'sampling_rate, data')
 FlightRecord = namedtuple('FlightRecord', 'time, temperature, altitude')
-Flight = namedtuple('Flight', 'sampling_freq, temperature_unit, length_unit, '
-                        'records')
+Flight = namedtuple('Flight', 'index, sampling_freq, temperature_unit, '
+                    'length_unit, records')
 
 
 class DataParser:
@@ -96,10 +96,13 @@ class DataParser:
         # Raw data contains several flights in binary format.
         # First split them apart, then decode them.
         raw_flights = self._split_raw_flight(data)
-        return [self._convert_raw_flight(raw_flight, length_unit, temp_unit)
-                for raw_flight in raw_flights]
+        return [self._convert_raw_flight(raw_flight,
+                                         index,
+                                         length_unit,
+                                         temp_unit)
+                for index, raw_flight in enumerate(raw_flights)]
 
-    def _convert_raw_flight(self, raw_flight, length_unit, temp_unit):
+    def _convert_raw_flight(self, raw_flight, index, length_unit, temp_unit):
         # Get time interval according to sampling rate.
         hertz = {
                 sp.FREQ_1_HERTZ: 1.0,
@@ -148,7 +151,7 @@ class DataParser:
             # Update timestamp.
             rel_time += timeslice
 
-        return Flight(hertz, temp_unit, length_unit, records)
+        return Flight(index, hertz, temp_unit, length_unit, records)
 
     def _to_fahrenheit(self, celsius):
         # Formula taken from Google search.

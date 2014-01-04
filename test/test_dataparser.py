@@ -104,6 +104,7 @@ class TestFlyDreamDataParser(unittest.TestCase):
     def test_convert_raw_flight_empty(self):
         flight = RawFlight('\x00', '')
         result = self._parser._convert_raw_flight(flight,
+                0,
                 DataParser.LENGTH_UNIT_METER,
                 DataParser.TEMPERATURE_UNIT_CELSIUS)
         self.assertEqual(0, len(result.records), 'Incorrect flight count')
@@ -120,6 +121,7 @@ class TestFlyDreamDataParser(unittest.TestCase):
 
         with self.assertRaises(FlyDreamAltimeterProtocolError):
             self._parser._convert_raw_flight(incorrect,
+                    0,
                     DataParser.LENGTH_UNIT_METER,
                     DataParser.TEMPERATURE_UNIT_CELSIUS)
 
@@ -132,6 +134,7 @@ class TestFlyDreamDataParser(unittest.TestCase):
         flight, = flights
 
         result = self._parser._convert_raw_flight(flight,
+                0,
                 DataParser.LENGTH_UNIT_METER,
                 DataParser.TEMPERATURE_UNIT_CELSIUS)
         self.assertTrue(len(result.records) > 0,
@@ -190,6 +193,7 @@ class TestFlyDreamDataParser(unittest.TestCase):
         flight, = flights
 
         result = self._parser._convert_raw_flight(flight,
+                0,
                 DataParser.LENGTH_UNIT_FEET,
                 DataParser.TEMPERATURE_UNIT_FAHRENHEIT)
         self.assertTrue(len(result.records) > 0,
@@ -223,6 +227,7 @@ class TestFlyDreamDataParser(unittest.TestCase):
         flight, = flights
 
         result = self._parser._convert_raw_flight(flight,
+                0,
                 DataParser.LENGTH_UNIT_METER,
                 DataParser.TEMPERATURE_UNIT_FAHRENHEIT)
         self.assertTrue(len(result.records) > 0,
@@ -256,6 +261,7 @@ class TestFlyDreamDataParser(unittest.TestCase):
         flight, = flights
 
         result = self._parser._convert_raw_flight(flight,
+                0,
                 DataParser.LENGTH_UNIT_METER,
                 DataParser.TEMPERATURE_UNIT_FAHRENHEIT)
         self.assertTrue(len(result.records) > 0,
@@ -293,15 +299,19 @@ class TestFlyDreamDataParser(unittest.TestCase):
         self.assertEqual(4, len(result), 'Incorrect flight count')
         first, second, third, fourth = result
 
-        self.assertEqual(2, first.sampling_freq)
+        self.assertEqual(0, first.index, 'Incorrect index')
+        self.assertEqual(2, first.sampling_freq, 'Incorrect frequency')
         self.assertEqual(216, len(first.records), 'Incorrect data length')
 
+        self.assertEqual(1, second.index, 'Incorrect index')
         self.assertEqual(1, second.sampling_freq)
         self.assertEqual(136, len(second.records), 'Incorrect data length')
 
+        self.assertEqual(2, third.index, 'Incorrect index')
         self.assertEqual(8, third.sampling_freq)
         self.assertEqual(496, len(third.records), 'Incorrect data length')
 
+        self.assertEqual(3, fourth.index, 'Incorrect index')
         self.assertEqual(4, fourth.sampling_freq)
         self.assertEqual(176, len(fourth.records), 'Incorrect data length')
 
