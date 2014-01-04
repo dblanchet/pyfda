@@ -6,7 +6,7 @@ vtest:
 	python -m unittest discover -v
 
 cov coverage:
-	coverage run --omit=*/site-packages/serial/*,test* -m unittest discover
+	coverage run --omit=*/site-packages/*,test* -m unittest discover
 	coverage report
 	coverage html
 	echo "See coverage details in htmlcov/ subdir"
