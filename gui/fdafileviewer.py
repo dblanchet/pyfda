@@ -82,35 +82,90 @@ class FdaFlightView(tk.Canvas):
         if not self._flight:
             return
 
-        # Title.
+        self.draw_title()
+        self.draw_plots()
+
+    def draw_title(self):
         title = flight_description(self._flight)
         self.create_text(5, 5, anchor='nw', text=title)
 
-        # Altitude plot.
+    def draw_plots(self):
+        # Plot sizes and margins
         width = self.winfo_width()
+        left_margin = 40
+        right_margin = 40
+        adjusted_width = width - left_margin - right_margin
+
         height = self.winfo_height()
+        top_margin = 25
+        bottom_margin = 25
+        adjusted_height = height - top_margin - bottom_margin
+
+        # Find out extrema.
+        #
+        # http://stackoverflow.com/a/4002806
         records = self._flight.records
+        _, temp_max, alt_max = map(max, zip(*records))
+        _, temp_min, alt_min = map(min, zip(*records))
 
-        x_stride = 1.0 * width / len(self._flight.records)
+        # Conversion routine.
+        x_stride = 1.0 * adjusted_width / len(records)
 
-        alt_max = max(rec.altitude for rec in records)
-        alt_min = min(rec.altitude for rec in records)
-
-        def y_coord(altitude):
+        def y_alt_coord(altitude):
             rel_alt = 1.0 * (altitude - alt_min) / (alt_max - alt_min)
-            return (1.0 - rel_alt) * height
+            return top_margin + (1.0 - rel_alt) * adjusted_height
 
-        x_prev = 0
-        y_prev = y_coord(records[0].altitude)
+        def y_temp_coord(temperature):
+            rel_temp = 1.0 * (temperature - temp_min) / (temp_max - temp_min)
+            return top_margin + (1.0 - rel_temp) * adjusted_height
 
+        # Draw axis.
+        bottom = height - bottom_margin
+        right = width - right_margin
+
+        self.create_line(left_margin, top_margin,
+                left_margin, bottom,
+                fill='black')
+        self.create_line(left_margin, bottom,
+                right, bottom,
+                fill='black')
+        self.create_line(right, top_margin,
+                right, bottom,
+                fill='black')
+
+        # Add labels and units.
+        text_offset = 5
+
+        self.create_text(left_margin + text_offset, top_margin + text_offset,
+                anchor='nw', text=u'altitude (m)', fill='red')
+        self.create_text(right - text_offset, top_margin + text_offset,
+                anchor='ne', text=u'temperature (°C)', fill='blue')
+        self.create_text(left_margin + text_offset, bottom - text_offset,
+                anchor='sw', text=u'time (s)')
+
+        # Initial value.
+        x_prev = left_margin
+        y_alt_prev = y_alt_coord(records[0].altitude)
+        y_temp_prev = y_temp_coord(records[0].temperature)
+
+        # Following ones.
         for rec in records[1:]:
             x_next = x_prev + x_stride
-            y_next = y_coord(rec.altitude)
+            y_alt_next = y_alt_coord(rec.altitude)
+            y_temp_next = y_temp_coord(rec.temperature)
 
-            self.create_line(x_prev, y_prev, x_next, y_next, fill='red')
+            self.create_line(
+                    x_prev, y_alt_prev,
+                    x_next, y_alt_next,
+                    fill='red')
+            self.create_line(
+                    x_prev, y_temp_prev,
+                    x_next, y_temp_next,
+                    fill='blue')
 
             x_prev = x_next
-            y_prev = y_next
+            y_alt_prev = y_alt_next
+            y_temp_prev = y_temp_next
 
 
 class FdaFileViewer(tk.Tk):
