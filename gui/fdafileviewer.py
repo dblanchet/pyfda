@@ -99,9 +99,8 @@ class FdaFlightView(tk.Canvas):
             rel_alt = 1.0 * (altitude - alt_min) / (alt_max - alt_min)
             return (1.0 - rel_alt) * height
 
-        rec0 = records[0]
         x_prev = 0
-        y_prev = y_coord(rec0.altitude)
+        y_prev = y_coord(records[0].altitude)
 
         for rec in records[1:]:
             x_next = x_prev + x_stride
