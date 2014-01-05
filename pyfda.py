@@ -107,13 +107,13 @@ def parse_command_line():
 
     if command == 'setup' and not args.frequency:
         print('error: Missing --frequency argument with command: %s'
-                % command)
+                % command, file=sys.stderr)
         return None
 
     if command in ['info', 'convert']:
         if not args.fda_file:
             print('error: Missing fda_file argument with command: %s'
-                    % command)
+                    % command, file=sys.stderr)
             return None
 
     # Make convert format default to CSV format.
@@ -124,7 +124,7 @@ def parse_command_line():
     # Set temperature units, defaults to celsius.
     if args.celsius and args.fahrenheit:
         print('error: --celsius and --fahrenheit can not '
-                'be both specified.')
+                'be both specified.', file=sys.stderr)
         return None
 
     args.temp_unit = DataParser.TEMPERATURE_UNIT_CELSIUS
@@ -133,7 +133,8 @@ def parse_command_line():
 
     # Set length unit, defaults to meters.
     if args.meters and args.feet:
-        print('error: --meters and --feet can not be both specified.')
+        print('error: --meters and --feet can not be both specified.',
+                file=sys.stderr)
         return None
 
     args.length_unit = DataParser.LENGTH_UNIT_METER
@@ -146,7 +147,7 @@ def parse_command_line():
         args.last = 1
 
     if args.last < 0:
-        print('error: --last argument must be positive.')
+        print('error: --last argument must be positive.', file=sys.stderr)
         return None
 
     return args
@@ -337,7 +338,7 @@ Please ensure that:
  - the given port is correct.
  - the USB adapter driver is properly installed on your computer, see
    http://www.silabs.com/products/mcu/pages/usbtouartbridgevcpdrivers.aspx'''
-   % e.message)
+   % e.message, file=sys.stderr)
         return 1
 
     return 0
