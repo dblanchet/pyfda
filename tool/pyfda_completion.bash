@@ -2,10 +2,6 @@
 _pyfda()
 {
   local cur=${COMP_WORDS[COMP_CWORD]}
-  local prev=${COMP_WORDS[COMP_CWORD - 1]}
-
-  local units_opts="--meters --feet --celsius --fahrenheit"
-  local format_opts="--csv --json --prefix --last"
 
   # First argument: Command or help flag.
   if (($COMP_CWORD == 1)); then
@@ -15,6 +11,8 @@ _pyfda()
 
   # Next argument depends on chosen command.
   local cmd=${COMP_WORDS[1]}
+  local units_opts="--meters --feet --celsius --fahrenheit"
+  local format_opts="--csv --json --prefix --last"
   case "$cmd" in
 
     info)
