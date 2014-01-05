@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -+- encoding: utf-8 -+-
 
 import Tkinter as tk
 from tkFileDialog import askopenfilename
@@ -122,7 +123,7 @@ class FdaFileViewer(tk.Tk):
         self.load_file(filename)
 
     def initialize(self):
-        self.title(_('FlyDream Altimeter - Data Flight Viewer'))
+        self.title(_(u'FlyDream Altimeter - Data Flight Viewer'))
 
         # Set minimal size
         self.minsize(480, 240)
@@ -140,7 +141,7 @@ class FdaFileViewer(tk.Tk):
         self.flight_list.grid(column=0, sticky='NS')
 
         # Choose file button.
-        self.load_button = tk.Button(self, text=_('Load file...'),
+        self.load_button = tk.Button(self, text=_(u'Load file...'),
                 command=self.ask_for_file)
         self.load_button.grid(column=0, row=1, sticky='EW')
 
@@ -154,8 +155,8 @@ class FdaFileViewer(tk.Tk):
 
     def ask_for_file(self):
         filename = askopenfilename(filetypes=(
-            (_('Flydream Altimeter Data'), '*.fda'),
-            (_('All files'), '*.*')))
+            (_(u'Flydream Altimeter Data'), '*.fda'),
+            (_(u'All files'), '*.*')))
         self.load_file(filename)
 
     def load_file(self, filename):
