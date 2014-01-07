@@ -170,10 +170,9 @@ def extract_flights(fda_file,
 def print_file_info(fda_file):
     flights = extract_flights(fda_file)
     for flight in flights:
-        duration = flight.records[-1].time + 1.0 / flight.sampling_freq
         print('   %d: %8d records @ %dHz -%10.3f seconds' %
                 (flight.index, len(flight.records),
-                    flight.sampling_freq, duration))
+                    flight.sampling_freq, flight.duration))
 
 
 def default_out_filename():
