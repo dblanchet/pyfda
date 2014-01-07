@@ -105,24 +105,6 @@ class FdaFlightView(tk.Canvas):
         bottom_margin = 30
         adjusted_height = height - top_margin - bottom_margin
 
-        # Find out extrema.
-        #
-        # http://stackoverflow.com/a/4002806
-        records = self._flight.records
-        _, temp_max, alt_max = map(max, zip(*records))
-        _, temp_min, alt_min = map(min, zip(*records))
-
-        # Conversion routine.
-        x_stride = 1.0 * adjusted_width / len(records)
-
-        def y_alt_coord(altitude):
-            rel_alt = 1.0 * (altitude - alt_min) / (alt_max - alt_min)
-            return top_margin + (1.0 - rel_alt) * adjusted_height
-
-        def y_temp_coord(temperature):
-            rel_temp = 1.0 * (temperature - temp_min) / (temp_max - temp_min)
-            return top_margin + (1.0 - rel_temp) * adjusted_height
-
         # Draw axis.
         axis_margin = 5
         top = top_margin - axis_margin
@@ -183,6 +165,24 @@ class FdaFlightView(tk.Canvas):
             time_val += k
 
         # Draw curves.
+
+        # Find out extrema.
+        #
+        # http://stackoverflow.com/a/4002806
+        records = self._flight.records
+        _, temp_max, alt_max = map(max, zip(*records))
+        _, temp_min, alt_min = map(min, zip(*records))
+
+        # Conversion routine.
+        x_stride = 1.0 * adjusted_width / len(records)
+
+        def y_alt_coord(altitude):
+            rel_alt = 1.0 * (altitude - alt_min) / (alt_max - alt_min)
+            return top_margin + (1.0 - rel_alt) * adjusted_height
+
+        def y_temp_coord(temperature):
+            rel_temp = 1.0 * (temperature - temp_min) / (temp_max - temp_min)
+            return top_margin + (1.0 - rel_temp) * adjusted_height
 
         # Initial value.
         x_prev = left_margin
