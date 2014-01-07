@@ -101,8 +101,8 @@ class FdaFlightView(tk.Canvas):
         height = self.winfo_height()
         if height == 1:
             return
-        top_margin = 25
-        bottom_margin = 25
+        top_margin = 30
+        bottom_margin = 30
         adjusted_height = height - top_margin - bottom_margin
 
         # Find out extrema.
@@ -124,16 +124,18 @@ class FdaFlightView(tk.Canvas):
             return top_margin + (1.0 - rel_temp) * adjusted_height
 
         # Draw axis.
-        bottom = height - bottom_margin
+        axis_margin = 5
+        top = top_margin - axis_margin
+        bottom = height - bottom_margin + axis_margin
         right = width - right_margin
 
-        self.create_line(left_margin, top_margin,
+        self.create_line(left_margin, top,
                 left_margin, bottom,
                 fill='black')
         self.create_line(left_margin, bottom,
                 right, bottom,
                 fill='black')
-        self.create_line(right, top_margin,
+        self.create_line(right, top,
                 right, bottom,
                 fill='black')
 
