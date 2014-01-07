@@ -137,7 +137,7 @@ class FdaFlightView(tk.Canvas):
                 right, bottom,
                 fill='black')
 
-        # Add labels and units.
+        # Add labels with units.
         text_offset = 5
 
         self.create_text(left_margin + text_offset, top_margin + text_offset,
@@ -146,6 +146,38 @@ class FdaFlightView(tk.Canvas):
                 anchor='ne', text=u'temperature (°C)', fill='blue')
         self.create_text(left_margin + text_offset, bottom - text_offset,
                 anchor='sw', text=u'time (s)')
+
+        # Add units along time axis.
+        def scale_factor_gen():
+            while True:
+                yield 2
+                yield 2.5
+                yield 2
+        scale_factor = scale_factor_gen()
+
+        # Find out suitable unit interval.
+        min_px_interval = 50  # Minimal tick width, in pixel.
+        k = 0.01  # Seconds per tick.
+        duration = records[-1].time + records[1].time  # TODO flight duration attribute
+
+        interv = adjusted_width / (duration / k)
+        while interv < min_px_interval:
+            k *= scale_factor.next()
+            interv = adjusted_width / (duration / k)
+
+        # Draw ticks.
+        tick_len = 5
+        text_value_offset = 15
+        x = left_margin
+        time_val = 0.0
+        while time_val <= duration:
+            self.create_line(x, bottom, x, bottom + tick_len)
+            self.create_text(x - text_value_offset, bottom + text_offset,
+                    anchor='nw', text='%1.2f' % time_val)
+            x += interv
+            time_val += k
+
+        # Draw curves.
 
         # Initial value.
         x_prev = left_margin
