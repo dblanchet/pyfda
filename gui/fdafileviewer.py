@@ -158,7 +158,7 @@ class FdaFlightView(tk.Canvas):
         # Find out suitable unit interval.
         min_px_interval = 50  # Minimal tick width, in pixel.
         k = 0.01  # Seconds per tick.
-        duration = records[-1].time + records[1].time  # TODO flight duration attribute
+        duration = self._flight.duration
 
         interv = adjusted_width / (duration / k)
         while interv < min_px_interval:
@@ -171,9 +171,12 @@ class FdaFlightView(tk.Canvas):
         x = left_margin
         time_val = 0.0
         while time_val <= duration:
-            self.create_line(x, bottom, x, bottom + tick_len)
-            self.create_text(x - text_value_offset, bottom + text_offset,
-                    anchor='nw', text='%1.2f' % time_val)
+            self.create_line(x, bottom,
+                    x, bottom + tick_len)
+            self.create_text(x - text_value_offset,
+                    bottom + text_offset,
+                    anchor='nw',
+                    text='%1.2f' % time_val)
             x += interv
             time_val += k
 
