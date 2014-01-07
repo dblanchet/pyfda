@@ -10,8 +10,8 @@ from . import serialprotocol as sp
 from collections import namedtuple
 RawFlight = namedtuple('RawFlight', 'sampling_rate, data')
 FlightRecord = namedtuple('FlightRecord', 'time, temperature, altitude')
-Flight = namedtuple('Flight', 'index, sampling_freq, temperature_unit, '
-                    'length_unit, records')
+Flight = namedtuple('Flight', 'index, sampling_freq, duration, '
+                    'temperature_unit, length_unit, records')
 
 
 class DataParser:
@@ -151,7 +151,8 @@ class DataParser:
             # Update timestamp.
             rel_time += timeslice
 
-        return Flight(index, hertz, temp_unit, length_unit, records)
+        duration = len(records) * 1.0 / hertz
+        return Flight(index, hertz, duration, temp_unit, length_unit, records)
 
     def _to_fahrenheit(self, celsius):
         # Formula taken from Google search.

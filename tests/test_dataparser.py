@@ -301,18 +301,22 @@ class TestFlyDreamDataParser(unittest.TestCase):
 
         self.assertEqual(0, first.index, 'Incorrect index')
         self.assertEqual(2, first.sampling_freq, 'Incorrect frequency')
+        self.assertEqual(108.0, first.duration, 'Incorrect duration')
         self.assertEqual(216, len(first.records), 'Incorrect data length')
 
         self.assertEqual(1, second.index, 'Incorrect index')
         self.assertEqual(1, second.sampling_freq)
+        self.assertEqual(136.0, second.duration, 'Incorrect duration')
         self.assertEqual(136, len(second.records), 'Incorrect data length')
 
         self.assertEqual(2, third.index, 'Incorrect index')
         self.assertEqual(8, third.sampling_freq)
+        self.assertEqual(62.0, third.duration, 'Incorrect duration')
         self.assertEqual(496, len(third.records), 'Incorrect data length')
 
         self.assertEqual(3, fourth.index, 'Incorrect index')
         self.assertEqual(4, fourth.sampling_freq)
+        self.assertEqual(44.0, fourth.duration, 'Incorrect duration')
         self.assertEqual(176, len(fourth.records), 'Incorrect data length')
 
 
