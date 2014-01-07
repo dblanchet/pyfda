@@ -92,11 +92,15 @@ class FdaFlightView(tk.Canvas):
     def draw_plots(self):
         # Plot sizes and margins
         width = self.winfo_width()
+        if width == 1:
+            return
         left_margin = 40
         right_margin = 40
         adjusted_width = width - left_margin - right_margin
 
         height = self.winfo_height()
+        if height == 1:
+            return
         top_margin = 25
         bottom_margin = 25
         adjusted_height = height - top_margin - bottom_margin
