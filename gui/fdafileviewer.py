@@ -95,7 +95,7 @@ class FdaFlightView(tk.Canvas):
         if width == 1:
             return
         left_margin = 40
-        right_margin = 40
+        right_margin = 30
         adjusted_width = width - left_margin - right_margin
 
         height = self.winfo_height()
@@ -137,7 +137,6 @@ class FdaFlightView(tk.Canvas):
                 yield 2
                 yield 2.5
                 yield 2
-        scale_factor = scale_factor_gen()
 
         # Find out suitable unit interval.
         min_px_interval = 50  # Minimal tick width, in pixel.
@@ -145,6 +144,7 @@ class FdaFlightView(tk.Canvas):
         duration = self._flight.duration
 
         interv = adjusted_width / (duration / k)
+        scale_factor = scale_factor_gen()
         while interv < min_px_interval:
             k *= scale_factor.next()
             interv = adjusted_width / (duration / k)
@@ -178,6 +178,62 @@ class FdaFlightView(tk.Canvas):
         if alt_max == alt_min:
             alt_max += 0.1
             alt_min -= 0.1
+
+        # Draw length units.
+
+        # Find out suitable unit interval.
+        min_px_interval = 30  # Minimal tick height, in pixel.
+        k = 0.25  # Seconds per tick.
+        total = alt_max - alt_min
+
+        interv = adjusted_height / (total / k)
+        scale_factor = scale_factor_gen()
+        while interv < min_px_interval:
+            k *= scale_factor.next()
+            interv = adjusted_height / (total / k)
+
+        # Draw ticks.
+        tick_len = 5
+        text_value_offset = 15
+        y = top_margin
+        height = alt_max
+        while height >= alt_min:
+            self.create_line(left_margin, y,
+                    left_margin - tick_len, y)
+            self.create_text(left_margin,
+                    y,
+                    anchor='ne',
+                    text='%1.1f' % height)
+            y += interv
+            height -= k
+
+        # Draw temperature units.
+
+        # Find out suitable unit interval.
+        min_px_interval = 30  # Minimal tick height, in pixel.
+        k = 1.0  # Seconds per tick.
+        total = temp_max - temp_min
+
+        interv = adjusted_height / (total / k)
+        scale_factor = scale_factor_gen()
+        while interv < min_px_interval:
+            k *= scale_factor.next()
+            interv = adjusted_height / (total / k)
+
+        # Draw ticks.
+        tick_len = 5
+        text_value_offset = 15
+        y = top_margin
+        temp = temp_max
+        while temp >= temp_min:
+            self.create_line(width - right_margin, y,
+                    width - left_margin + tick_len, y)
+            self.create_text(width - right_margin + tick_len,
+                    y,
+                    anchor='nw',
+                    text='%1.0f' % temp)
+            y += interv
+            temp -= k
 
         # Conversion routine.
         x_stride = 1.0 * adjusted_width / len(records)
