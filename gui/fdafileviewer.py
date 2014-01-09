@@ -11,6 +11,36 @@ import gettext
 _ = gettext.translation('pyfdagui', fallback=True).ugettext
 
 
+# http://geekyjournal.blogspot.fr/2011/10/
+#              gaussian-filter-python-implementation.html
+from math import exp
+
+
+def get_window_weights(N):
+    support_points = [(float(3 * i) / float(N)) ** 2.0
+            for i in range(-N, N + 1)]
+    gii_factors = [exp(-(i / 2.0)) for i in support_points]
+    ki = float(sum(gii_factors))
+    return [giin / ki for giin in gii_factors]
+
+
+def apply_filter(index, array, window):
+    N = (len(window) - 1) / 2
+    # Fix out of range exception.
+    array_l = [array[0] for i in range(N)] \
+                + array \
+                + [array[-1] for i in range(N)]
+    return sum(float(array_l[N + index + i]) * window[N + i]
+            for i in range(-N, N + 1))
+
+
+def gaussian_filter(data, window_weights, filter_func=apply_filter):
+    ret = []
+    for i in range(len(data)):
+        ret.append(filter_func(i, data, window_weights))
+    return ret
+
+
 def flight_description(flight):
     duration = flight.records[-1].time + 1.0 / flight.sampling_freq
     return '%3.3d - %10.3f secs @ %dHz' % \
@@ -246,29 +276,41 @@ class FdaFlightView(tk.Canvas):
             rel_temp = 1.0 * (temperature - temp_min) / (temp_max - temp_min)
             return top_margin + (1.0 - rel_temp) * adjusted_height
 
+        window_width = 9
+        softened_altitude = gaussian_filter( \
+                [rec.altitude for rec in records], \
+                get_window_weights(window_width))
+
         # Initial value.
         x_prev = left_margin
         y_alt_prev = y_alt_coord(records[0].altitude)
         y_temp_prev = y_temp_coord(records[0].temperature)
+        y_soft_prev = y_alt_coord(softened_altitude[0])
 
         # Following ones.
-        for rec in records[1:]:
+        for index, rec in enumerate(records[1:]):
             x_next = x_prev + x_stride
             y_alt_next = y_alt_coord(rec.altitude)
             y_temp_next = y_temp_coord(rec.temperature)
+            y_soft_next = y_alt_coord(softened_altitude[1 + index])
 
             self.create_line(
                     x_prev, y_alt_prev,
                     x_next, y_alt_next,
                     fill='red')
             self.create_line(
+                    x_prev, y_soft_prev,
+                    x_next, y_soft_next,
+                    fill='darkred', width=3.0)
+            self.create_line(
                     x_prev, y_temp_prev,
                     x_next, y_temp_next,
-                    fill='blue')
+                    fill='blue', width=2.0)
 
             x_prev = x_next
             y_alt_prev = y_alt_next
             y_temp_prev = y_temp_next
+            y_soft_prev = y_soft_next
 
 
 class FdaFileViewer(tk.Tk):
