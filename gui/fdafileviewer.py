@@ -172,6 +172,12 @@ class FdaFlightView(tk.Canvas):
         records = self._flight.records
         _, temp_max, alt_max = map(max, zip(*records))
         _, temp_min, alt_min = map(min, zip(*records))
+        if temp_max == temp_min:
+            temp_max += 1
+            temp_min -= 1
+        if alt_max == alt_min:
+            alt_max += 0.1
+            alt_min -= 0.1
 
         # Conversion routine.
         x_stride = 1.0 * adjusted_width / len(records)
