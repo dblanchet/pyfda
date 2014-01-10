@@ -162,6 +162,9 @@ class FdaFlightView(tk.Canvas):
                 anchor='sw', text=u'time (s)')
 
         # Add units along time axis.
+        tick_len = 5
+        text_value_offset = 15
+
         def scale_factor_gen():
             while True:
                 yield 2
@@ -180,8 +183,6 @@ class FdaFlightView(tk.Canvas):
             interv = adjusted_width / (duration / k)
 
         # Draw ticks.
-        tick_len = 5
-        text_value_offset = 15
         x = left_margin
         time_val = 0.0
         while time_val <= duration:
@@ -223,8 +224,6 @@ class FdaFlightView(tk.Canvas):
             interv = adjusted_height / (total / k)
 
         # Draw ticks.
-        tick_len = 5
-        text_value_offset = 15
         y = top_margin
         height = alt_max
         while height >= alt_min:
@@ -251,8 +250,6 @@ class FdaFlightView(tk.Canvas):
             interv = adjusted_height / (total / k)
 
         # Draw ticks.
-        tick_len = 5
-        text_value_offset = 15
         y = top_margin
         temp = temp_max
         while temp >= temp_min:
@@ -265,9 +262,7 @@ class FdaFlightView(tk.Canvas):
             y += interv
             temp -= k
 
-        # Conversion routine.
-        x_stride = 1.0 * adjusted_width / len(records)
-
+        # Y-axis conversion routines.
         def y_alt_coord(altitude):
             rel_alt = 1.0 * (altitude - alt_min) / (alt_max - alt_min)
             return top_margin + (1.0 - rel_alt) * adjusted_height
@@ -276,18 +271,20 @@ class FdaFlightView(tk.Canvas):
             rel_temp = 1.0 * (temperature - temp_min) / (temp_max - temp_min)
             return top_margin + (1.0 - rel_temp) * adjusted_height
 
+        # Softened altitude curve values.
         window_width = 9
         softened_altitude = gaussian_filter( \
                 [rec.altitude for rec in records], \
                 get_window_weights(window_width))
 
-        # Initial value.
+        # Initial values.
         x_prev = left_margin
         y_alt_prev = y_alt_coord(records[0].altitude)
         y_temp_prev = y_temp_coord(records[0].temperature)
         y_soft_prev = y_alt_coord(softened_altitude[0])
 
         # Following ones.
+        x_stride = 1.0 * adjusted_width / len(records)
         for index, rec in enumerate(records[1:]):
             x_next = x_prev + x_stride
             y_alt_next = y_alt_coord(rec.altitude)
