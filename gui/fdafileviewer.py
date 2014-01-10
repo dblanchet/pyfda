@@ -165,22 +165,34 @@ class FdaFlightView(tk.Canvas):
         tick_len = 5
         text_value_offset = 15
 
-        def scale_factor_gen():
-            while True:
-                yield 2
-                yield 2.5
-                yield 2
+        def adapt_axis_scale(full_val_range, px_width,
+                min_val, min_px):
+
+            def scale_factor_gen():
+                while True:
+                    yield 2
+                    yield 2.5
+                    yield 2
+            scale_factor = scale_factor_gen()
+
+            val_min, val_max = full_val_range
+            val_width = val_max - val_min
+
+            val_result = min_val
+            px_result = px_width / (val_width / val_result)
+
+            while px_result <= min_px:
+                val_result *= scale_factor.next()
+                px_result = px_width / (val_width / val_result)
+
+            return val_result, px_result
 
         # Find out suitable unit interval.
-        min_px_interval = 50  # Minimal tick width, in pixel.
-        k = 0.01  # Seconds per tick.
         duration = self._flight.duration
-
-        interv = adjusted_width / (duration / k)
-        scale_factor = scale_factor_gen()
-        while interv < min_px_interval:
-            k *= scale_factor.next()
-            interv = adjusted_width / (duration / k)
+        k, interv = adapt_axis_scale(
+                (0.0, duration),
+                adjusted_width,
+                min_val=0.01, min_px=50)
 
         # Draw ticks.
         x = left_margin
@@ -211,17 +223,10 @@ class FdaFlightView(tk.Canvas):
             alt_min -= 0.1
 
         # Draw length units.
-
-        # Find out suitable unit interval.
-        min_px_interval = 30  # Minimal tick height, in pixel.
-        k = 0.25  # Seconds per tick.
-        total = alt_max - alt_min
-
-        interv = adjusted_height / (total / k)
-        scale_factor = scale_factor_gen()
-        while interv < min_px_interval:
-            k *= scale_factor.next()
-            interv = adjusted_height / (total / k)
+        k, interv = adapt_axis_scale(
+                (alt_min, alt_max),
+                adjusted_height,
+                min_val=0.25, min_px=30)
 
         # Draw ticks.
         y = top_margin
@@ -237,17 +242,10 @@ class FdaFlightView(tk.Canvas):
             height -= k
 
         # Draw temperature units.
-
-        # Find out suitable unit interval.
-        min_px_interval = 30  # Minimal tick height, in pixel.
-        k = 1.0  # Seconds per tick.
-        total = temp_max - temp_min
-
-        interv = adjusted_height / (total / k)
-        scale_factor = scale_factor_gen()
-        while interv < min_px_interval:
-            k *= scale_factor.next()
-            interv = adjusted_height / (total / k)
+        k, interv = adapt_axis_scale(
+                (temp_min, temp_max),
+                adjusted_height,
+                min_val=1.0, min_px=30)
 
         # Draw ticks.
         y = top_margin
