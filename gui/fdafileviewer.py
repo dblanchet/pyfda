@@ -98,10 +98,16 @@ class FdaFlightView(tk.Canvas):
         tk.Canvas.__init__(self, parent, bg='lightgrey', *args, **kwargs)
         self._flight = None
         self.bind('<Configure>', self.on_resize)
+        self.bind('<Motion>', self.on_mouse_motion)
 
     def display_flight(self, flight):
         self._flight = flight
         self.update_content()
+
+    def on_mouse_motion(self, event):
+        mouse_pos = '(%d, %d)  ' % (event.x, event.y)
+        self.create_rectangle(200, 5, 300, 20, fill='lightgrey')
+        self.create_text(300, 5, anchor='ne', text=mouse_pos)
 
     def on_resize(self, event):
         self.update_content()
