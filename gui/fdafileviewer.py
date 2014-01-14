@@ -104,6 +104,9 @@ class FdaFlightView(tk.Canvas):
         self._flight = flight
         self.compute_flight_data_extrema(flight)
 
+        self._x_scale = 1.0
+        self._y_scale = 1.0
+
 
         # Triggers a redraw if size is known.
         self.on_resize(None)
@@ -227,7 +230,7 @@ class FdaFlightView(tk.Canvas):
             return val_result, px_result
 
         # Find out suitable unit interval.
-        duration = self._flight.duration
+        duration = self._flight.duration / self._x_scale
         k, interv = adapt_axis_scale(
                 (0.0, duration),
                 adjusted_width,
@@ -312,8 +315,9 @@ class FdaFlightView(tk.Canvas):
         y_soft_prev = y_alt_coord(softened_altitude[0])
 
         # Following ones.
-        x_stride = 1.0 * adjusted_width / len(records)
-        for index, rec in enumerate(records[1:]):
+        scaled_len = len(records) / self._x_scale
+        x_stride = 1.0 * adjusted_width / scaled_len
+        for index, rec in enumerate(records[1:int(scaled_len) + 1]):
             x_next = x_prev + x_stride
             y_alt_next = y_alt_coord(rec.altitude)
             y_temp_next = y_temp_coord(rec.temperature)
@@ -375,8 +379,21 @@ class FdaFileViewer(tk.Tk):
         self.flight_info.grid(column=1, row=0, sticky='NSEW')
 
         # TODO: Flight display information (units...)
-        label = tk.Label(self, anchor="w", text='TODO: Change display units')
-        label.grid(column=1, row=1, columnspan=2, sticky='EW')
+        self.scale = tk.Scale(self, orient=tk.HORIZONTAL,
+                from_=1.0, to=100.0, resolution=0.1)
+        self.scale.grid(column=1, row=1, columnspan=2, sticky='EW')
+        self.scale.bind('<ButtonPress>', self.scale_pressed)
+        self.scale.bind('<ButtonRelease>', self.scale_released)
+
+    def scale_pressed(self, event):
+        event.widget.bind('<Motion>', self.scale_changed)
+
+    def scale_released(self, event):
+        event.widget.unbind('<Motion>')
+
+    def scale_changed(self, event):
+        self.flight_info._x_scale = event.widget.get()
+        self.flight_info.update_content()
 
     def ask_for_file(self):
         filename = askopenfilename(filetypes=(
@@ -390,5 +407,6 @@ class FdaFileViewer(tk.Tk):
 
     def on_flight_selected(self, flight):
         self.flight_info.display_flight(flight)
+        self.scale.set(1.0)
 
 # vim:nosi:
