@@ -102,6 +102,8 @@ class FdaFlightView(tk.Canvas):
 
     def display_flight(self, flight):
         self._flight = flight
+        self.compute_flight_data_extrema(flight)
+
 
         # Triggers a redraw if size is known.
         self.on_resize(None)
@@ -111,7 +113,28 @@ class FdaFlightView(tk.Canvas):
         self.create_rectangle(200, 5, 300, 20, fill='lightgrey')
         self.create_text(300, 5, anchor='ne', text=mouse_pos)
 
+    def compute_flight_data_extrema(self, flight):
+        records = self._flight.records
+
+        # http://stackoverflow.com/a/4002806
+        _, temp_max, alt_max = map(max, zip(*records))
+        _, temp_min, alt_min = map(min, zip(*records))
+
+        # Add small margin to constant values.
+        if temp_max == temp_min:
+            temp_max += 1
+            temp_min -= 1
+        if alt_max == alt_min:
+            alt_max += 0.1
+            alt_min -= 0.1
+
+        self._alt_min, self._alt_max = alt_min, alt_max
+        self._temp_min, self._temp_max = temp_min, temp_max
+        self.total_duration = self._flight.duration
+
     def on_resize(self, event):
+
+        # Get new canvas size.
         width = self.winfo_width()
         if width == 1:
             return
@@ -182,8 +205,7 @@ class FdaFlightView(tk.Canvas):
         tick_len = 5
         text_value_offset = 15
 
-        def adapt_axis_scale(full_val_range, px_width,
-                min_val, min_px):
+        def adapt_axis_scale(full_val_range, px_width, min_val, min_px):
 
             def scale_factor_gen():
                 while True:
@@ -225,19 +247,8 @@ class FdaFlightView(tk.Canvas):
             time_val += k
 
         # Draw curves.
-
-        # Find out extrema.
-        #
-        # http://stackoverflow.com/a/4002806
-        records = self._flight.records
-        _, temp_max, alt_max = map(max, zip(*records))
-        _, temp_min, alt_min = map(min, zip(*records))
-        if temp_max == temp_min:
-            temp_max += 1
-            temp_min -= 1
-        if alt_max == alt_min:
-            alt_max += 0.1
-            alt_min -= 0.1
+        alt_min, alt_max = self._alt_min, self._alt_max
+        temp_min, temp_max = self._temp_min, self._temp_max
 
         # Draw length units.
         k, interv = adapt_axis_scale(
@@ -285,6 +296,8 @@ class FdaFlightView(tk.Canvas):
         def y_temp_coord(temperature):
             rel_temp = 1.0 * (temperature - temp_min) / (temp_max - temp_min)
             return top_margin + (1.0 - rel_temp) * adjusted_height
+
+        records = self._flight.records
 
         # Softened altitude curve values.
         window_width = 9
