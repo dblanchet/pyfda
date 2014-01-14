@@ -120,19 +120,19 @@ class FdaFlightView(tk.Canvas):
         self.create_text(5, 5, anchor='nw', text=title)
 
     def draw_plots(self):
-        # Plot sizes and margins
+        # Plot area sizes and margins.
         width = self.winfo_width()
         if width == 1:
             return
-        left_margin = 40
-        right_margin = 30
+        left_margin = 40  # More digits for altitude axis.
+        right_margin = 30  # Less digits for temperature axis.
         adjusted_width = width - left_margin - right_margin
 
         height = self.winfo_height()
         if height == 1:
             return
-        top_margin = 30
-        bottom_margin = 30
+        top_margin = 30  # Plot information.
+        bottom_margin = 30  # Time axis
         adjusted_height = height - top_margin - bottom_margin
 
         # Draw axis.
