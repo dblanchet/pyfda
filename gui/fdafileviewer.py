@@ -102,7 +102,9 @@ class FdaFlightView(tk.Canvas):
 
     def display_flight(self, flight):
         self._flight = flight
-        self.update_content()
+
+        # Triggers a redraw if size is known.
+        self.on_resize(None)
 
     def on_mouse_motion(self, event):
         mouse_pos = '(%d, %d)  ' % (event.x, event.y)
@@ -110,6 +112,18 @@ class FdaFlightView(tk.Canvas):
         self.create_text(300, 5, anchor='ne', text=mouse_pos)
 
     def on_resize(self, event):
+        width = self.winfo_width()
+        if width == 1:
+            return
+        self._width = width
+
+        height = self.winfo_height()
+        if height == 1:
+            return
+        self._height = height
+
+        # If size is properly defined,
+        # refresh content.
         self.update_content()
 
     def update_content(self):
@@ -126,17 +140,14 @@ class FdaFlightView(tk.Canvas):
         self.create_text(5, 5, anchor='nw', text=title)
 
     def draw_plots(self):
-        # Plot area sizes and margins.
-        width = self.winfo_width()
-        if width == 1:
-            return
+        width = self._width
+        height = self._height
+
+        # Area sizes and margins.
         left_margin = 40  # More digits for altitude axis.
         right_margin = 30  # Less digits for temperature axis.
         adjusted_width = width - left_margin - right_margin
 
-        height = self.winfo_height()
-        if height == 1:
-            return
         top_margin = 30  # Plot information.
         bottom_margin = 30  # Time axis
         adjusted_height = height - top_margin - bottom_margin
