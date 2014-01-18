@@ -97,8 +97,54 @@ class FdaFlightView(tk.Canvas):
     def __init__(self, parent, *args, **kwargs):
         tk.Canvas.__init__(self, parent, bg='lightgrey', *args, **kwargs)
         self._flight = None
+        self._parent = parent
+        self._scrolling = False
+
         self.bind('<Configure>', self.on_resize)
         self.bind('<Motion>', self.on_mouse_motion)
+        self.bind('<ButtonPress-1>', self.on_button1_press)
+        self.bind('<ButtonRelease-1>', self.on_button1_release)
+
+    def set_x_scale(self, x_scale):
+        self._x_scale = x_scale
+
+        # Ensure time offset allow data display.
+        adjusted_duration = self._flight.duration / x_scale
+        if self._x_time_offset + adjusted_duration > self._flight.duration:
+            self._x_time_offset = self._flight.duration - adjusted_duration
+
+    def on_button1_press(self, event):
+        if self._x_scale > 1.0:
+            self._parent.config(cursor='sizing')
+
+            self._scrolling = True
+            self._scroll_orig = self._mouse_coords
+            self._offset_orig = self._x_time_offset
+
+    def on_button1_release(self, event):
+        self._parent.config(cursor='arrow')
+        self._scrolling = False
+
+    def on_mouse_motion(self, event):
+        mouse_pos = '(%d, %d)  ' % (event.x, event.y)
+        self.create_rectangle(200, 5, 300, 20, fill='lightgrey')
+        self.create_text(300, 5, anchor='ne', text=mouse_pos)
+
+        self._mouse_coords = event.x, event.y
+
+        if self._scrolling:
+            x_orig, _ = self._scroll_orig
+            x_offset = x_orig - event.x
+            time_offset = self.px_to_seconds(x_offset)
+
+            self._x_time_offset = self._offset_orig + time_offset
+
+            if self._x_time_offset < 0.0:
+                self._x_time_offset = 0.0
+            if self._x_time_offset + self._flight.duration / self._x_scale > self._flight.duration:
+                self._x_time_offset = self._flight.duration - self._flight.duration / self._x_scale
+
+            self.update_content()
 
     def display_flight(self, flight):
         self._flight = flight
@@ -107,14 +153,16 @@ class FdaFlightView(tk.Canvas):
         self._x_scale = 1.0
         self._y_scale = 1.0
 
+        self._x_time_offset = 0.0
+        self._y_alt_offset = self._alt_min
+        self._y_temp_offset = self._temp_min
 
         # Triggers a redraw if size is known.
         self.on_resize(None)
 
-    def on_mouse_motion(self, event):
-        mouse_pos = '(%d, %d)  ' % (event.x, event.y)
-        self.create_rectangle(200, 5, 300, 20, fill='lightgrey')
-        self.create_text(300, 5, anchor='ne', text=mouse_pos)
+    def px_to_seconds(self, px):
+        sec_per_pixel = (self._flight.duration / self._x_scale) / self._width
+        return px * sec_per_pixel
 
     def compute_flight_data_extrema(self, flight):
         records = self._flight.records
@@ -230,16 +278,16 @@ class FdaFlightView(tk.Canvas):
             return val_result, px_result
 
         # Find out suitable unit interval.
-        duration = self._flight.duration / self._x_scale
+        adjusted_duration = self._flight.duration / self._x_scale
         k, interv = adapt_axis_scale(
-                (0.0, duration),
+                (0.0, adjusted_duration),
                 adjusted_width,
                 min_val=0.01, min_px=50)
 
         # Draw ticks.
         x = left_margin
-        time_val = 0.0
-        while time_val <= duration:
+        time_val = self._x_time_offset
+        while time_val <= self._x_time_offset + adjusted_duration:
             self.create_line(x, bottom,
                     x, bottom + tick_len)
             self.create_text(x - text_value_offset,
@@ -300,7 +348,10 @@ class FdaFlightView(tk.Canvas):
             rel_temp = 1.0 * (temperature - temp_min) / (temp_max - temp_min)
             return top_margin + (1.0 - rel_temp) * adjusted_height
 
-        records = self._flight.records
+        # Displayed part of data.
+        records = [record for record in self._flight.records
+                if self._x_time_offset <= record.time
+                if record.time <= self._x_time_offset + adjusted_duration]
 
         # Softened altitude curve values.
         window_width = 9
@@ -315,9 +366,8 @@ class FdaFlightView(tk.Canvas):
         y_soft_prev = y_alt_coord(softened_altitude[0])
 
         # Following ones.
-        scaled_len = len(records) / self._x_scale
-        x_stride = 1.0 * adjusted_width / scaled_len
-        for index, rec in enumerate(records[1:int(scaled_len) + 1]):
+        x_stride = 1.0 * adjusted_width / len(records)
+        for index, rec in enumerate(records[1:]):
             x_next = x_prev + x_stride
             y_alt_next = y_alt_coord(rec.altitude)
             y_temp_next = y_temp_coord(rec.temperature)
@@ -392,7 +442,7 @@ class FdaFileViewer(tk.Tk):
         event.widget.unbind('<Motion>')
 
     def scale_changed(self, event):
-        self.flight_info._x_scale = event.widget.get()
+        self.flight_info.set_x_scale(event.widget.get())
         self.flight_info.update_content()
 
     def ask_for_file(self):
