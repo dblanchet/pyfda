@@ -242,7 +242,7 @@ class FdaFlightView(tk.Canvas):
                 right, bottom,
                 fill='black')
 
-        # Add labels with units.
+        # Add unit labels.
         text_offset = 5
 
         self.create_text(left_margin + text_offset, top_margin + text_offset,
@@ -252,10 +252,7 @@ class FdaFlightView(tk.Canvas):
         self.create_text(left_margin + text_offset, bottom - text_offset,
                 anchor='sw', text=u'time (s)')
 
-        # Add units along time axis.
-        tick_len = 5
-        text_value_offset = 15
-
+        # Find out suitable unit interval.
         def adapt_axis_scale(full_val_range, px_width, min_val, min_px):
 
             def scale_factor_gen():
@@ -277,14 +274,17 @@ class FdaFlightView(tk.Canvas):
 
             return val_result, px_result
 
-        # Find out suitable unit interval.
+        # Add axis and unit ticks.
+        tick_len = 5
+        text_value_offset = 15
+
+        # Draw horizontal (time) ticks.
         adjusted_duration = self._flight.duration / self._x_scale
         k, interv = adapt_axis_scale(
                 (0.0, adjusted_duration),
                 adjusted_width,
                 min_val=0.01, min_px=50)
 
-        # Draw ticks.
         x = left_margin
         time_val = self._x_time_offset
         while time_val <= self._x_time_offset + adjusted_duration:
@@ -297,17 +297,16 @@ class FdaFlightView(tk.Canvas):
             x += interv
             time_val += k
 
-        # Draw curves.
+        # Draw vertical axis.
         alt_min, alt_max = self._alt_min, self._alt_max
         temp_min, temp_max = self._temp_min, self._temp_max
 
-        # Draw length units.
+        # Draw left vertical (length) ticks.
         k, interv = adapt_axis_scale(
                 (alt_min, alt_max),
                 adjusted_height,
                 min_val=0.25, min_px=30)
 
-        # Draw ticks.
         y = top_margin
         height = alt_max
         while height >= alt_min:
@@ -320,13 +319,12 @@ class FdaFlightView(tk.Canvas):
             y += interv
             height -= k
 
-        # Draw temperature units.
+        # Draw right vertical (temperature) ticks.
         k, interv = adapt_axis_scale(
                 (temp_min, temp_max),
                 adjusted_height,
                 min_val=1.0, min_px=30)
 
-        # Draw ticks.
         y = top_margin
         temp = temp_max
         while temp >= temp_min:
@@ -339,7 +337,7 @@ class FdaFlightView(tk.Canvas):
             y += interv
             temp -= k
 
-        # Y-axis conversion routines.
+        # Y-axis value conversion routines.
         def y_alt_coord(altitude):
             rel_alt = 1.0 * (altitude - alt_min) / (alt_max - alt_min)
             return top_margin + (1.0 - rel_alt) * adjusted_height
@@ -359,13 +357,13 @@ class FdaFlightView(tk.Canvas):
                 [rec.altitude for rec in records], \
                 get_window_weights(window_width))
 
-        # Initial values.
+        # Initial values...
         x_prev = left_margin
         y_alt_prev = y_alt_coord(records[0].altitude)
         y_temp_prev = y_temp_coord(records[0].temperature)
         y_soft_prev = y_alt_coord(softened_altitude[0])
 
-        # Following ones.
+        # ... then following ones.
         x_stride = 1.0 * adjusted_width / len(records)
         for index, rec in enumerate(records[1:]):
             x_next = x_prev + x_stride
