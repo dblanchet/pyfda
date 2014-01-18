@@ -1,0 +1,45 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2014-01-18 23:24+CET\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: ENCODING\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: gui/fdafileviewer.py:249
+msgid "altitude (m)"
+msgstr ""
+
+#: gui/fdafileviewer.py:251
+msgid "temperature (\302\260C)"
+msgstr ""
+
+#: gui/fdafileviewer.py:253
+msgid "time (s)"
+msgstr ""
+
+#: gui/fdafileviewer.py:403
+msgid "FlyDream Altimeter - Data Flight Viewer"
+msgstr ""
+
+#: gui/fdafileviewer.py:421
+msgid "Load file..."
+msgstr ""
+
+#: gui/fdafileviewer.py:448
+msgid "Flydream Altimeter Data"
+msgstr ""
+
+#: gui/fdafileviewer.py:449
+msgid "All files"
+msgstr ""
+

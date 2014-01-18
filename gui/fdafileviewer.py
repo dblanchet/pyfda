@@ -8,7 +8,7 @@ from flydream.uploadeddata import UploadedData
 from flydream.dataparser import DataParser
 
 import gettext
-_ = gettext.translation('pyfdagui', fallback=True).ugettext
+_ = gettext.translation('messages', 'gui', fallback=True).ugettext
 
 
 # http://geekyjournal.blogspot.fr/2011/10/
@@ -246,11 +246,11 @@ class FdaFlightView(tk.Canvas):
         text_offset = 5
 
         self.create_text(left_margin + text_offset, top_margin + text_offset,
-                anchor='nw', text=u'altitude (m)', fill='red')
+                anchor='nw', text=_(u'altitude (m)'), fill='red')
         self.create_text(right - text_offset, top_margin + text_offset,
-                anchor='ne', text=u'temperature (°C)', fill='blue')
+                anchor='ne', text=_(u'temperature (°C)'), fill='blue')
         self.create_text(left_margin + text_offset, bottom - text_offset,
-                anchor='sw', text=u'time (s)')
+                anchor='sw', text=_(u'time (s)'))
 
         # Find out suitable unit interval.
         def adapt_axis_scale(full_val_range, px_width, min_val, min_px):
