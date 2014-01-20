@@ -302,7 +302,7 @@ class FdaFlightView(tk.Canvas):
         text_value_offset = 15
 
         # Draw horizontal (time) ticks.
-        k, interv = adapt_axis_scale(
+        val_interv, px_interv = adapt_axis_scale(
                 (0.0, self._adjusted_duration),
                 adjusted_width,
                 min_val=0.01, min_px=50)
@@ -316,15 +316,15 @@ class FdaFlightView(tk.Canvas):
                     bottom + text_offset,
                     anchor='nw',
                     text='%1.2f' % time_val)
-            x += interv
-            time_val += k
+            x += px_interv
+            time_val += val_interv
 
         # Draw vertical axis.
         alt_min, alt_max = self._alt_min, self._alt_max
         temp_min, temp_max = self._temp_min, self._temp_max
 
         # Draw left vertical (length) ticks.
-        k, interv = adapt_axis_scale(
+        val_interv, px_interv = adapt_axis_scale(
                 (alt_min, alt_max),
                 adjusted_height,
                 min_val=0.25, min_px=30)
@@ -338,11 +338,11 @@ class FdaFlightView(tk.Canvas):
                     y,
                     anchor='ne',
                     text='%1.1f' % height)
-            y += interv
-            height -= k
+            y += px_interv
+            height -= val_interv
 
         # Draw right vertical (temperature) ticks.
-        k, interv = adapt_axis_scale(
+        val_interv, px_interv = adapt_axis_scale(
                 (temp_min, temp_max),
                 adjusted_height,
                 min_val=1.0, min_px=30)
@@ -356,8 +356,8 @@ class FdaFlightView(tk.Canvas):
                     y,
                     anchor='nw',
                     text='%1.0f' % temp)
-            y += interv
-            temp -= k
+            y += px_interv
+            temp -= val_interv
 
         # Y-axis value conversion routines.
         def y_alt_coord(altitude):
