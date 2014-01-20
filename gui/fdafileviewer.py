@@ -113,6 +113,9 @@ class FdaFlightView(tk.Canvas):
         if self._x_time_offset + adjusted_duration > self._flight.duration:
             self._x_time_offset = self._flight.duration - adjusted_duration
 
+        # Save this value for many other usage later.
+        self._adjusted_duration = adjusted_duration
+
     def on_button1_press(self, event):
         if self._x_scale > 1.0:
             self._parent.config(cursor='sizing')
@@ -141,8 +144,10 @@ class FdaFlightView(tk.Canvas):
 
             if self._x_time_offset < 0.0:
                 self._x_time_offset = 0.0
-            if self._x_time_offset + self._flight.duration / self._x_scale > self._flight.duration:
-                self._x_time_offset = self._flight.duration - self._flight.duration / self._x_scale
+
+            time_offset_limit = self._flight.duration - self._adjusted_duration
+            if self._x_time_offset > time_offset_limit:
+                self._x_time_offset = time_offset_limit
 
             self.update_content()
 
@@ -154,6 +159,8 @@ class FdaFlightView(tk.Canvas):
         self._y_scale = 1.0
 
         self._x_time_offset = 0.0
+        self._adjusted_duration = self._flight.duration
+
         self._y_alt_offset = self._alt_min
         self._y_temp_offset = self._temp_min
 
@@ -161,7 +168,7 @@ class FdaFlightView(tk.Canvas):
         self.on_resize(None)
 
     def px_to_seconds(self, px):
-        sec_per_pixel = (self._flight.duration / self._x_scale) / self._width
+        sec_per_pixel = (self._adjusted_duration) / self._width
         return px * sec_per_pixel
 
     def compute_flight_data_extrema(self, flight):
@@ -279,15 +286,14 @@ class FdaFlightView(tk.Canvas):
         text_value_offset = 15
 
         # Draw horizontal (time) ticks.
-        adjusted_duration = self._flight.duration / self._x_scale
         k, interv = adapt_axis_scale(
-                (0.0, adjusted_duration),
+                (0.0, self._adjusted_duration),
                 adjusted_width,
                 min_val=0.01, min_px=50)
 
         x = left_margin
         time_val = self._x_time_offset
-        while time_val <= self._x_time_offset + adjusted_duration:
+        while time_val <= self._x_time_offset + self._adjusted_duration:
             self.create_line(x, bottom,
                     x, bottom + tick_len)
             self.create_text(x - text_value_offset,
@@ -349,7 +355,7 @@ class FdaFlightView(tk.Canvas):
         # Displayed part of data.
         records = [record for record in self._flight.records
                 if self._x_time_offset <= record.time
-                if record.time <= self._x_time_offset + adjusted_duration]
+                if record.time <= self._x_time_offset + self._adjusted_duration]
 
         # Softened altitude curve values.
         window_width = 9
