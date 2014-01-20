@@ -117,6 +117,9 @@ class FdaFlightView(tk.Canvas):
         self._adjusted_duration = adjusted_duration
 
     def on_button1_press(self, event):
+        # Left mouse button triggers scrolling.
+        #
+        # But only if scaling allows it.
         if self._x_scale > 1.0:
             self._parent.config(cursor='sizing')
 
@@ -125,23 +128,31 @@ class FdaFlightView(tk.Canvas):
             self._offset_orig = self._x_time_offset
 
     def on_button1_release(self, event):
+        # No more scrolling when left
+        # mouse button is released.
         self._parent.config(cursor='arrow')
         self._scrolling = False
 
     def on_mouse_motion(self, event):
-        mouse_pos = '(%d, %d)  ' % (event.x, event.y)
-        self.create_rectangle(200, 5, 300, 20, fill='lightgrey')
-        self.create_text(300, 5, anchor='ne', text=mouse_pos)
-
         self._mouse_coords = event.x, event.y
 
+        # DEBUG
+        #mouse_pos = '(%d, %d)  ' % (x, y)
+        #self.create_rectangle(200, 5, 300, 20, fill='lightgrey')
+        #self.create_text(300, 5, anchor='ne', text=mouse_pos)
+
         if self._scrolling:
+            # When scrolling, convert mouse move
+            # to suitable user units.
+            #
+            # Time axis unit is seconds.
             x_orig, _ = self._scroll_orig
             x_offset = x_orig - event.x
             time_offset = self.px_to_seconds(x_offset)
 
             self._x_time_offset = self._offset_orig + time_offset
 
+            # Ensure acceptable scrolling bounds.
             if self._x_time_offset < 0.0:
                 self._x_time_offset = 0.0
 
@@ -149,15 +160,20 @@ class FdaFlightView(tk.Canvas):
             if self._x_time_offset > time_offset_limit:
                 self._x_time_offset = time_offset_limit
 
+            # Refresh content.
             self.update_content()
 
     def display_flight(self, flight):
         self._flight = flight
+
+        # Extract a few information.
         self.compute_flight_data_extrema(flight)
 
+        # Reset zoom.
         self._x_scale = 1.0
         self._y_scale = 1.0
 
+        # Reset scrolling.
         self._x_time_offset = 0.0
         self._adjusted_duration = self._flight.duration
 
@@ -168,6 +184,7 @@ class FdaFlightView(tk.Canvas):
         self.on_resize(None)
 
     def px_to_seconds(self, px):
+        # Scrolling conversion routine.
         sec_per_pixel = (self._adjusted_duration) / self._width
         return px * sec_per_pixel
 
@@ -179,6 +196,9 @@ class FdaFlightView(tk.Canvas):
         _, temp_min, alt_min = map(min, zip(*records))
 
         # Add small margin to constant values.
+        #
+        # A simple way to display them and
+        # prevent division by zero exceptions.
         if temp_max == temp_min:
             temp_max += 1
             temp_min -= 1
