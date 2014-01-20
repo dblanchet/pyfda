@@ -10,6 +10,8 @@ from flydream.dataparser import DataParser
 import gettext
 _ = gettext.translation('messages', 'gui', fallback=True).ugettext
 
+import itertools
+
 
 # http://geekyjournal.blogspot.fr/2011/10/
 #              gaussian-filter-python-implementation.html
@@ -282,19 +284,13 @@ class FdaFlightView(tk.Canvas):
         # Find out suitable unit interval.
         def adapt_axis_scale(full_val_range, px_width, min_val, min_px):
 
-            def scale_factor_gen():
-                while True:
-                    yield 2
-                    yield 2.5
-                    yield 2
-            scale_factor = scale_factor_gen()
-
             val_min, val_max = full_val_range
             val_width = val_max - val_min
 
             val_result = min_val
             px_result = px_width / (val_width / val_result)
 
+            scale_factor = itertools.cycle([2.0, 2.5, 2.0])
             while px_result <= min_px:
                 val_result *= scale_factor.next()
                 px_result = px_width / (val_width / val_result)
