@@ -386,7 +386,7 @@ class FdaFlightView(tk.Canvas):
         y_soft_prev = y_alt_coord(softened_altitude[0])
 
         # ... then following ones.
-        x_stride = 1.0 * adjusted_width / len(records)
+        x_stride = 1.0 * adjusted_width / (len(records) - 1)
         for index, rec in enumerate(records[1:]):
             x_next = x_prev + x_stride
             y_alt_next = y_alt_coord(rec.altitude)
