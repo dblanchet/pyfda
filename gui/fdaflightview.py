@@ -13,6 +13,11 @@ from smoothcurve import gaussian_filter, get_window_weights
 
 class FdaFlightView(tk.Canvas):
 
+    LEFT_MARGIN = 40    # Digits of vertical altitude left axis.
+    RIGHT_MARGIN = 30   # Digits of vertical temperature right axis.
+    TOP_MARGIN = 30     # Plot title.
+    BOTTOM_MARGIN = 30  # Digits of horizontal time bottom axis.
+
     def __init__(self, parent, *args, **kwargs):
         tk.Canvas.__init__(self, parent, bg='lightgrey', *args, **kwargs)
         self._flight = None
@@ -161,20 +166,16 @@ class FdaFlightView(tk.Canvas):
         height = self._height
 
         # Area sizes and margins.
-        left_margin = 40  # More digits for altitude axis.
-        right_margin = 30  # Less digits for temperature axis.
-        adjusted_width = width - left_margin - right_margin
-
-        top_margin = 30  # Plot information.
-        bottom_margin = 30  # Time axis
-        adjusted_height = height - top_margin - bottom_margin
+        adjusted_width = width - self.LEFT_MARGIN - self.RIGHT_MARGIN
+        adjusted_height = height - self.TOP_MARGIN - self.BOTTOM_MARGIN
 
         # Draw axis.
         axis_margin = 5
-        top = top_margin - axis_margin
-        bottom = height - bottom_margin + axis_margin
-        right = width - right_margin
+        top = self.TOP_MARGIN - axis_margin
+        bottom = height - self.BOTTOM_MARGIN + axis_margin
+        right = width - self.RIGHT_MARGIN
 
+        left_margin = self.LEFT_MARGIN
         self.create_line(left_margin, top,
                 left_margin, bottom,
                 fill='black')
@@ -188,6 +189,7 @@ class FdaFlightView(tk.Canvas):
         # Add unit labels.
         text_offset = 5
 
+        top_margin = self.TOP_MARGIN
         self.create_text(left_margin + text_offset, top_margin + text_offset,
                 anchor='nw', text=_(u'altitude (m)'), fill='red')
         self.create_text(right - text_offset, top_margin + text_offset,
@@ -264,9 +266,9 @@ class FdaFlightView(tk.Canvas):
         y = top_margin
         temp = temp_max
         while temp >= temp_min:
-            self.create_line(width - right_margin, y,
+            self.create_line(width - self.RIGHT_MARGIN, y,
                     width - left_margin + tick_len, y)
-            self.create_text(width - right_margin + tick_len,
+            self.create_text(width - self.RIGHT_MARGIN + tick_len,
                     y,
                     anchor='nw',
                     text='%1.0f' % temp)
@@ -274,22 +276,17 @@ class FdaFlightView(tk.Canvas):
             temp -= val_interv
 
     def draw_curves(self):
-        # TODO Remove duplicated code.
         width = self._width
         height = self._height
 
         # Area sizes and margins.
-        left_margin = 40  # More digits for altitude axis.
-        right_margin = 30  # Less digits for temperature axis.
-        adjusted_width = width - left_margin - right_margin
-
-        top_margin = 30  # Plot information.
-        bottom_margin = 30  # Time axis
-        adjusted_height = height - top_margin - bottom_margin
+        adjusted_width = width - self.LEFT_MARGIN - self.RIGHT_MARGIN
+        adjusted_height = height - self.TOP_MARGIN - self.BOTTOM_MARGIN
 
         # Y-axis value conversion routines.
         alt_min, alt_max = self._alt_min, self._alt_max
         temp_min, temp_max = self._temp_min, self._temp_max
+        top_margin = self.TOP_MARGIN
 
         def y_alt_coord(altitude):
             rel_alt = 1.0 * (altitude - alt_min) / (alt_max - alt_min)
@@ -311,7 +308,7 @@ class FdaFlightView(tk.Canvas):
                 get_window_weights(window_width))
 
         # Initial values...
-        x_prev = left_margin
+        x_prev = self.LEFT_MARGIN
         y_alt_prev = y_alt_coord(records[0].altitude)
         y_temp_prev = y_temp_coord(records[0].temperature)
         y_soft_prev = y_alt_coord(softened_altitude[0])
