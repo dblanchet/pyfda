@@ -149,13 +149,14 @@ class FdaFlightView(tk.Canvas):
             return
 
         self.draw_title()
-        self.draw_plots()
+        self.draw_axis()
+        self.draw_curves()
 
     def draw_title(self):
         title = flight_description(self._flight)
         self.create_text(5, 5, anchor='nw', text=title)
 
-    def draw_plots(self):
+    def draw_axis(self):
         width = self._width
         height = self._height
 
@@ -272,7 +273,24 @@ class FdaFlightView(tk.Canvas):
             y += px_interv
             temp -= val_interv
 
+    def draw_curves(self):
+        # TODO Remove duplicated code.
+        width = self._width
+        height = self._height
+
+        # Area sizes and margins.
+        left_margin = 40  # More digits for altitude axis.
+        right_margin = 30  # Less digits for temperature axis.
+        adjusted_width = width - left_margin - right_margin
+
+        top_margin = 30  # Plot information.
+        bottom_margin = 30  # Time axis
+        adjusted_height = height - top_margin - bottom_margin
+
         # Y-axis value conversion routines.
+        alt_min, alt_max = self._alt_min, self._alt_max
+        temp_min, temp_max = self._temp_min, self._temp_max
+
         def y_alt_coord(altitude):
             rel_alt = 1.0 * (altitude - alt_min) / (alt_max - alt_min)
             return top_margin + (1.0 - rel_alt) * adjusted_height
