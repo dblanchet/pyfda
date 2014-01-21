@@ -90,14 +90,10 @@ class FdaFlightView(tk.Canvas):
 
         # Reset zoom.
         self._x_scale = 1.0
-        self._y_scale = 1.0
 
         # Reset scrolling.
         self._x_time_offset = 0.0
         self._adjusted_duration = self._flight.duration
-
-        self._y_alt_offset = self._alt_min
-        self._y_temp_offset = self._temp_min
 
         # Triggers a redraw if size is known.
         self.on_resize(None)
