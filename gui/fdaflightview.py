@@ -109,6 +109,10 @@ class FdaFlightView(tk.Canvas):
             return
         self._height = height
 
+        # Curve area size.
+        self._adjusted_width = width - self.LEFT_MARGIN - self.RIGHT_MARGIN
+        self._adjusted_height = height - self.TOP_MARGIN - self.BOTTOM_MARGIN
+
         # If size is properly defined,
         # refresh content.
         self.update_content()
@@ -132,18 +136,11 @@ class FdaFlightView(tk.Canvas):
         self.create_text(5, 5, anchor='nw', text=title)
 
     def draw_axis(self):
-        width = self._width
-        height = self._height
-
-        # Area sizes and margins.
-        adjusted_width = width - self.LEFT_MARGIN - self.RIGHT_MARGIN
-        adjusted_height = height - self.TOP_MARGIN - self.BOTTOM_MARGIN
-
-        # Draw axis.
+        # Draw axis lines.
         axis_margin = 5
         top = self.TOP_MARGIN - axis_margin
-        bottom = height - self.BOTTOM_MARGIN + axis_margin
-        right = width - self.RIGHT_MARGIN
+        bottom = self._height - self.BOTTOM_MARGIN + axis_margin
+        right = self._width - self.RIGHT_MARGIN
 
         left_margin = self.LEFT_MARGIN
         self.create_line(left_margin, top,
@@ -192,7 +189,7 @@ class FdaFlightView(tk.Canvas):
         adjusted_duration = src.time_hi - src.time_lo
         val_interv, px_interv = adapt_axis_scale(
                 (0.0, adjusted_duration),
-                adjusted_width,
+                self._adjusted_width,
                 min_val=0.01, min_px=50)
 
         x = left_margin
@@ -214,7 +211,7 @@ class FdaFlightView(tk.Canvas):
         # Draw left vertical (length) ticks.
         val_interv, px_interv = adapt_axis_scale(
                 (alt_min, alt_max),
-                adjusted_height,
+                self._adjusted_height,
                 min_val=0.25, min_px=30)
 
         y = top_margin
@@ -232,15 +229,15 @@ class FdaFlightView(tk.Canvas):
         # Draw right vertical (temperature) ticks.
         val_interv, px_interv = adapt_axis_scale(
                 (temp_min, temp_max),
-                adjusted_height,
+                self._adjusted_height,
                 min_val=1.0, min_px=30)
 
         y = top_margin
         temp = temp_max
         while temp >= temp_min:
-            self.create_line(width - self.RIGHT_MARGIN, y,
-                    width - left_margin + tick_len, y)
-            self.create_text(width - self.RIGHT_MARGIN + tick_len,
+            self.create_line(self._width - self.RIGHT_MARGIN, y,
+                    self._width - left_margin + tick_len, y)
+            self.create_text(self._width - self.RIGHT_MARGIN + tick_len,
                     y,
                     anchor='nw',
                     text='%1.0f' % temp)
@@ -248,12 +245,6 @@ class FdaFlightView(tk.Canvas):
             temp -= val_interv
 
     def draw_curves(self):
-        width = self._width
-        height = self._height
-
-        # Area sizes and margins.
-        adjusted_width = width - self.LEFT_MARGIN - self.RIGHT_MARGIN
-        adjusted_height = height - self.TOP_MARGIN - self.BOTTOM_MARGIN
 
         # Y-axis value conversion routines.
         src = self._data_source
@@ -263,11 +254,11 @@ class FdaFlightView(tk.Canvas):
 
         def y_alt_coord(altitude):
             rel_alt = 1.0 * (altitude - alt_min) / (alt_max - alt_min)
-            return top_margin + (1.0 - rel_alt) * adjusted_height
+            return top_margin + (1.0 - rel_alt) * self._adjusted_height
 
         def y_temp_coord(temperature):
             rel_temp = 1.0 * (temperature - temp_min) / (temp_max - temp_min)
-            return top_margin + (1.0 - rel_temp) * adjusted_height
+            return top_margin + (1.0 - rel_temp) * self._adjusted_height
 
         # Displayed part of data.
         curve_data = src.get_displayed_data()
@@ -281,7 +272,7 @@ class FdaFlightView(tk.Canvas):
         y_soft_prev = y_alt_coord(soft_alt)
 
         # ... then following ones.
-        x_stride = 1.0 * adjusted_width / (len(curve_data) - 1)
+        x_stride = 1.0 * self._adjusted_width / (len(curve_data) - 1)
         for temp, alt, soft_alt in curve_data[1:]:
             x_next = x_prev + x_stride
 
