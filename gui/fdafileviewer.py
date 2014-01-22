@@ -4,7 +4,8 @@ import Tkinter as tk
 from tkFileDialog import askopenfilename
 
 from fdaflightlist import FdaFlightList
-from fdaflightview import FdaFlightView, FdaFlightViewDataSource
+from fdaflightview import FdaFlightView
+from fdaflightviewdatasource import FdaFlightViewDataSource
 
 import gettext
 _ = gettext.translation('messages', 'gui', fallback=True).ugettext
