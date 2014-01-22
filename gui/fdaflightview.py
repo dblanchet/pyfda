@@ -49,7 +49,7 @@ class FdaFlightView(tk.Canvas):
             self._parent.config(cursor='sizing')
 
             self._scrolling = True
-            self._scroll_orig = self._mouse_coords
+            self._scroll_orig = event.x, event.y
             self._offset_orig = self._x_time_offset
 
     def on_button1_release(self, event):
@@ -59,8 +59,6 @@ class FdaFlightView(tk.Canvas):
         self._scrolling = False
 
     def on_mouse_motion(self, event):
-        self._mouse_coords = event.x, event.y
-
         # DEBUG
         #mouse_pos = '(%d, %d)  ' % (x, y)
         #self.create_rectangle(200, 5, 300, 20, fill='lightgrey')
