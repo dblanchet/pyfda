@@ -4,7 +4,7 @@ import Tkinter as tk
 from tkFileDialog import askopenfilename
 
 from fdaflightlist import FdaFlightList
-from fdaflightview import FdaFlightView
+from fdaflightview import FdaFlightView, FdaFlightViewDataSource
 
 import gettext
 _ = gettext.translation('messages', 'gui', fallback=True).ugettext
@@ -61,7 +61,6 @@ class FdaFileViewer(tk.Tk):
 
     def scale_changed(self, event):
         self.flight_info.set_x_scale(event.widget.get())
-        self.flight_info.update_content()
 
     def ask_for_file(self):
         filename = askopenfilename(filetypes=(
@@ -74,7 +73,10 @@ class FdaFileViewer(tk.Tk):
             self.flight_list.load_fda_file(filename)
 
     def on_flight_selected(self, flight):
-        self.flight_info.display_flight(flight)
-        self.scale.set(1.0)
+        # Tell canvas view to display this flight.
+        data_source = FdaFlightViewDataSource(flight)
+        self.flight_info.display_flight_data(data_source)
 
-# vim:nosi:
+        # Reset our scale factor widget, because
+        # loading a new file resets canvas scale.
+        self.scale.set(1.0)

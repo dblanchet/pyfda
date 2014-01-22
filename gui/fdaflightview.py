@@ -11,6 +11,90 @@ from util import flight_description
 from smoothcurve import gaussian_filter, get_window_weights
 
 
+class FdaFlightViewDataSource:
+
+    GAUSSIAN_WINDOW_WIDTH = 9
+    HEIGHT_MARGIN = 0.1
+    TEMP_MARGIN = 1.0
+
+    def __init__(self, flight):
+        # Flight description.
+        self.description = flight_description(flight)
+
+        # Full data time range.
+        self.time_min = 0.0
+        self.time_max = flight.duration
+
+        # Full data values.
+        full_time_values = [rec.time for rec in flight.records]
+        full_alt = [rec.altitude for rec in flight.records]
+        full_temp = [rec.temperature for rec in flight.records]
+        full_soft_alt = gaussian_filter(
+                full_alt,
+                get_window_weights(self.GAUSSIAN_WINDOW_WIDTH))
+
+        self.full_data = zip(full_time_values, full_temp,
+                full_alt, full_soft_alt)
+
+        self.compute_extrema()
+
+        # Displayed time information.
+        self.time_scale = 1.0
+        self.time_lo = 0.0
+        self.time_hi = flight.duration
+
+    def compute_extrema(self):
+
+        # http://stackoverflow.com/a/4002806
+        _, temp_max, alt_max, _ = map(max, zip(*self.full_data))
+        _, temp_min, alt_min, _ = map(min, zip(*self.full_data))
+
+        # Add small margin to constant values.
+        #
+        # A simple way to display them and
+        # prevent division by zero exceptions.
+        if temp_max == temp_min:
+            temp_max += self.TEMP_MARGIN
+            temp_min -= self.TEMP_MARGIN
+        if alt_max == alt_min:
+            alt_max += self.HEIGHT_MARGIN
+            alt_min -= self.HEIGHT_MARGIN
+
+        self.alt_min, self.alt_max = alt_min, alt_max
+        self.temp_min, self.temp_max = temp_min, temp_max
+
+    def set_time_scale(self, factor):
+
+        assert factor >= 1.0
+
+        self.time_scale = factor
+
+        # Ensure time offset allow data display.
+        time_range = self.time_max / factor
+        if self.time_lo + time_range > self.time_max:
+            self.time_lo = self.time_max - time_range
+
+        self.time_hi = self.time_lo + time_range
+
+    def set_time_offset(self, offset):
+
+        self.time_lo = offset
+
+        # Ensure acceptable scrolling bounds.
+        if self.time_lo < self.time_min:
+            self.time_lo = self.time_min
+
+        time_range = self.time_max / self.time_scale
+        if self.time_lo + time_range > self.time_max:
+            self.time_lo = self.time_max - time_range
+
+        self.time_hi = self.time_lo + time_range
+
+    def get_displayed_data(self):
+        return [rec[1:4] for rec in self.full_data
+                if self.time_lo <= rec[0] <= self.time_hi]
+
+
 class FdaFlightView(tk.Canvas):
 
     LEFT_MARGIN = 40    # Digits of vertical altitude left axis.
@@ -20,7 +104,7 @@ class FdaFlightView(tk.Canvas):
 
     def __init__(self, parent, *args, **kwargs):
         tk.Canvas.__init__(self, parent, bg='lightgrey', *args, **kwargs)
-        self._flight = None
+        self._data_source = None
         self._parent = parent
         self._scrolling = False
 
@@ -31,14 +115,18 @@ class FdaFlightView(tk.Canvas):
 
     def set_x_scale(self, x_scale):
         self._x_scale = x_scale
+        self._data_source.set_time_scale(x_scale)
 
-        # Ensure time offset allow data display.
-        adjusted_duration = self._flight.duration / x_scale
-        if self._x_time_offset + adjusted_duration > self._flight.duration:
-            self._x_time_offset = self._flight.duration - adjusted_duration
+        # Refresh content.
+        self.update_content()
 
-        # Save this value for many other usage later.
-        self._adjusted_duration = adjusted_duration
+    def px_to_seconds(self, px):
+        # Scrolling conversion routine.
+        src = self._data_source
+        adjusted_duration = src.time_hi - src.time_lo
+
+        sec_per_pixel = adjusted_duration / self._width
+        return px * sec_per_pixel
 
     def on_button1_press(self, event):
         # Left mouse button triggers scrolling.
@@ -72,63 +160,28 @@ class FdaFlightView(tk.Canvas):
             # Time axis unit is seconds.
             x_orig, _ = self._scroll_orig
             x_offset = x_orig - event.x
-            time_offset = self.px_to_seconds(x_offset)
+            time_offset = self._offset_orig + self.px_to_seconds(x_offset)
 
-            self._x_time_offset = self._offset_orig + time_offset
+            # Tell data source.
+            self._data_source.set_time_offset(time_offset)
 
-            # Ensure acceptable scrolling bounds.
-            if self._x_time_offset < 0.0:
-                self._x_time_offset = 0.0
+            # Refresh content if a scroll occured.
+            prev_time_offset = self._x_time_offset
+            self._x_time_offset = self._data_source.time_lo
+            if self._x_time_offset != prev_time_offset:
+                self.update_content()
 
-            time_offset_limit = self._flight.duration - self._adjusted_duration
-            if self._x_time_offset > time_offset_limit:
-                self._x_time_offset = time_offset_limit
+    def display_flight_data(self, data_source):
+        self._data_source = data_source
 
-            # Refresh content.
-            self.update_content()
-
-    def display_flight(self, flight):
-        self._flight = flight
-
-        # Extract a few information.
-        self.compute_flight_data_extrema(flight)
-
-        # Reset zoom.
+        # Reset horizontal scaling.
         self._x_scale = 1.0
 
-        # Reset scrolling.
+        # Reset horizontal scrolling.
         self._x_time_offset = 0.0
-        self._adjusted_duration = self._flight.duration
 
         # Triggers a redraw if size is known.
         self.on_resize(None)
-
-    def px_to_seconds(self, px):
-        # Scrolling conversion routine.
-        sec_per_pixel = (self._adjusted_duration) / self._width
-        return px * sec_per_pixel
-
-    def compute_flight_data_extrema(self, flight):
-        records = self._flight.records
-
-        # http://stackoverflow.com/a/4002806
-        _, temp_max, alt_max = map(max, zip(*records))
-        _, temp_min, alt_min = map(min, zip(*records))
-
-        # Add small margin to constant values.
-        #
-        # A simple way to display them and
-        # prevent division by zero exceptions.
-        if temp_max == temp_min:
-            temp_max += 1
-            temp_min -= 1
-        if alt_max == alt_min:
-            alt_max += 0.1
-            alt_min -= 0.1
-
-        self._alt_min, self._alt_max = alt_min, alt_max
-        self._temp_min, self._temp_max = temp_min, temp_max
-        self.total_duration = self._flight.duration
 
     def on_resize(self, event):
 
@@ -148,17 +201,21 @@ class FdaFlightView(tk.Canvas):
         self.update_content()
 
     def update_content(self):
+        # Reset Canvas content.
         self.delete(tk.ALL)
 
-        if not self._flight:
+        # Stop if no data to be drawn.
+        if not self._data_source:
             return
 
+        # Draw all the parts.
         self.draw_title()
         self.draw_axis()
         self.draw_curves()
 
     def draw_title(self):
-        title = flight_description(self._flight)
+        # Flight description in upper left corner.
+        title = self._data_source.description
         self.create_text(5, 5, anchor='nw', text=title)
 
     def draw_axis(self):
@@ -218,14 +275,16 @@ class FdaFlightView(tk.Canvas):
         text_value_offset = 15
 
         # Draw horizontal (time) ticks.
+        src = self._data_source
+        adjusted_duration = src.time_hi - src.time_lo
         val_interv, px_interv = adapt_axis_scale(
-                (0.0, self._adjusted_duration),
+                (0.0, adjusted_duration),
                 adjusted_width,
                 min_val=0.01, min_px=50)
 
         x = left_margin
         time_val = self._x_time_offset
-        while time_val <= self._x_time_offset + self._adjusted_duration:
+        while time_val <= self._x_time_offset + adjusted_duration:
             self.create_line(x, bottom,
                     x, bottom + tick_len)
             self.create_text(x - text_value_offset,
@@ -236,8 +295,8 @@ class FdaFlightView(tk.Canvas):
             time_val += val_interv
 
         # Draw vertical axis.
-        alt_min, alt_max = self._alt_min, self._alt_max
-        temp_min, temp_max = self._temp_min, self._temp_max
+        alt_min, alt_max = src.alt_min, src.alt_max
+        temp_min, temp_max = src.temp_min, src.temp_max
 
         # Draw left vertical (length) ticks.
         val_interv, px_interv = adapt_axis_scale(
@@ -284,8 +343,9 @@ class FdaFlightView(tk.Canvas):
         adjusted_height = height - self.TOP_MARGIN - self.BOTTOM_MARGIN
 
         # Y-axis value conversion routines.
-        alt_min, alt_max = self._alt_min, self._alt_max
-        temp_min, temp_max = self._temp_min, self._temp_max
+        src = self._data_source
+        alt_min, alt_max = src.alt_min, src.alt_max
+        temp_min, temp_max = src.temp_min, src.temp_max
         top_margin = self.TOP_MARGIN
 
         def y_alt_coord(altitude):
@@ -297,29 +357,24 @@ class FdaFlightView(tk.Canvas):
             return top_margin + (1.0 - rel_temp) * adjusted_height
 
         # Displayed part of data.
-        records = [record for record in self._flight.records
-                if self._x_time_offset <= record.time
-                if record.time <= self._x_time_offset + self._adjusted_duration]
-
-        # Softened altitude curve values.
-        window_width = 9
-        softened_altitude = gaussian_filter( \
-                [rec.altitude for rec in records], \
-                get_window_weights(window_width))
+        curve_data = src.get_displayed_data()
 
         # Initial values...
         x_prev = self.LEFT_MARGIN
-        y_alt_prev = y_alt_coord(records[0].altitude)
-        y_temp_prev = y_temp_coord(records[0].temperature)
-        y_soft_prev = y_alt_coord(softened_altitude[0])
+
+        temp, alt, soft_alt = curve_data[0]
+        y_temp_prev = y_temp_coord(temp)
+        y_alt_prev = y_alt_coord(alt)
+        y_soft_prev = y_alt_coord(soft_alt)
 
         # ... then following ones.
-        x_stride = 1.0 * adjusted_width / (len(records) - 1)
-        for index, rec in enumerate(records[1:]):
+        x_stride = 1.0 * adjusted_width / (len(curve_data) - 1)
+        for temp, alt, soft_alt in curve_data[1:]:
             x_next = x_prev + x_stride
-            y_alt_next = y_alt_coord(rec.altitude)
-            y_temp_next = y_temp_coord(rec.temperature)
-            y_soft_next = y_alt_coord(softened_altitude[1 + index])
+
+            y_temp_next = y_temp_coord(temp)
+            y_alt_next = y_alt_coord(alt)
+            y_soft_next = y_alt_coord(soft_alt)
 
             self.create_line(
                     x_prev, y_alt_prev,
