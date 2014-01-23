@@ -30,6 +30,11 @@ class FdaFlightView(tk.Canvas):
         self._x_scale = x_scale
         self._data_source.set_time_scale(x_scale)
 
+        # Depending on previous scrolling and
+        # scaling value, scrolling position may
+        # have changed.
+        self._x_time_offset = self._data_source.time_lo
+
         # Refresh content.
         self.update_content()
 
