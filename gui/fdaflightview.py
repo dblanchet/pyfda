@@ -38,7 +38,7 @@ class FdaFlightView(tk.Canvas):
         src = self._data_source
         adjusted_duration = src.time_hi - src.time_lo
 
-        sec_per_pixel = adjusted_duration / self._width
+        sec_per_pixel = adjusted_duration / self._adjusted_width
         return px * sec_per_pixel
 
     def on_button1_press(self, event):
@@ -59,18 +59,20 @@ class FdaFlightView(tk.Canvas):
         self._scrolling = False
 
     def on_mouse_motion(self, event):
+        x, y = event.x, event.y
         # DEBUG
         #mouse_pos = '(%d, %d)  ' % (x, y)
         #self.create_rectangle(200, 5, 300, 20, fill='lightgrey')
         #self.create_text(300, 5, anchor='ne', text=mouse_pos)
 
         if self._scrolling:
+
             # When scrolling, convert mouse move
             # to suitable user units.
             #
             # Time axis unit is seconds.
             x_orig, _ = self._scroll_orig
-            x_offset = x_orig - event.x
+            x_offset = x_orig - x
             time_offset = self._offset_orig + self.px_to_seconds(x_offset)
 
             # Tell data source.
