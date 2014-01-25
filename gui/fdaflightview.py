@@ -46,6 +46,30 @@ class FdaFlightView(tk.Canvas):
         sec_per_pixel = adjusted_duration / self._adjusted_width
         return px * sec_per_pixel
 
+    def seconds_to_px(self, seconds):
+        # Scrolling conversion routine.
+        src = self._data_source
+        adjusted_duration = src.time_hi - src.time_lo
+
+        px_per_seconds = self._adjusted_width / adjusted_duration
+        return seconds * px_per_seconds
+
+    def alt_to_px(self, altitude):
+        # Y-axis value conversion routines.
+        src = self._data_source
+        alt_min, alt_max = src.alt_min, src.alt_max
+
+        rel_alt = 1.0 * (altitude - alt_min) / (alt_max - alt_min)
+        return self.TOP_MARGIN + (1.0 - rel_alt) * self._adjusted_height
+
+    def temp_to_px(self, temperature):
+        # Y-axis value conversion routines.
+        src = self._data_source
+        temp_min, temp_max = src.temp_min, src.temp_max
+
+        rel_temp = 1.0 * (temperature - temp_min) / (temp_max - temp_min)
+        return self.TOP_MARGIN + (1.0 - rel_temp) * self._adjusted_height
+
     def on_button1_press(self, event):
         # Left mouse button triggers scrolling.
         #
@@ -251,39 +275,28 @@ class FdaFlightView(tk.Canvas):
 
     def draw_curves(self):
 
-        # Y-axis value conversion routines.
-        src = self._data_source
-        alt_min, alt_max = src.alt_min, src.alt_max
-        temp_min, temp_max = src.temp_min, src.temp_max
-        top_margin = self.TOP_MARGIN
-
-        def y_alt_coord(altitude):
-            rel_alt = 1.0 * (altitude - alt_min) / (alt_max - alt_min)
-            return top_margin + (1.0 - rel_alt) * self._adjusted_height
-
-        def y_temp_coord(temperature):
-            rel_temp = 1.0 * (temperature - temp_min) / (temp_max - temp_min)
-            return top_margin + (1.0 - rel_temp) * self._adjusted_height
-
         # Displayed part of data.
+        src = self._data_source
         curve_data = src.get_displayed_data()
 
         # Initial values...
-        x_prev = self.LEFT_MARGIN
+        time, temp, alt, soft_alt = curve_data[0]
 
-        temp, alt, soft_alt = curve_data[0]
-        y_temp_prev = y_temp_coord(temp)
-        y_alt_prev = y_alt_coord(alt)
-        y_soft_prev = y_alt_coord(soft_alt)
+        rel_time = time - self._x_time_offset
+        x_prev = self.LEFT_MARGIN + self.seconds_to_px(rel_time)
+
+        y_temp_prev = self.temp_to_px(temp)
+        y_alt_prev = self.alt_to_px(alt)
+        y_soft_prev = self.alt_to_px(soft_alt)
 
         # ... then following ones.
-        x_stride = 1.0 * self._adjusted_width / (len(curve_data) - 1)
-        for temp, alt, soft_alt in curve_data[1:]:
+        x_stride = self._adjusted_width / src.get_displayed_sample_count()
+        for time, temp, alt, soft_alt in curve_data[1:]:
             x_next = x_prev + x_stride
 
-            y_temp_next = y_temp_coord(temp)
-            y_alt_next = y_alt_coord(alt)
-            y_soft_next = y_alt_coord(soft_alt)
+            y_temp_next = self.temp_to_px(temp)
+            y_alt_next = self.alt_to_px(alt)
+            y_soft_next = self.alt_to_px(soft_alt)
 
             self.create_line(
                     x_prev, y_alt_prev,

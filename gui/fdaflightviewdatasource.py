@@ -84,9 +84,14 @@ class FdaFlightViewDataSource:
         else:
             self.time_hi = self.time_lo + time_range
 
+    def get_displayed_sample_count(self):
+        # Depending on scale factor, this count
+        # may not be an integer value.
+        return len(self.full_data) / self.time_scale
+
     def get_displayed_data(self):
         # Only return values, not timestamps.
-        return [rec[1:4] for rec in self.full_data
+        return [rec for rec in self.full_data
                 if self.time_lo <= rec[0] <= self.time_hi]
 
     def find_nearest_values(self, time):
