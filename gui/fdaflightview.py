@@ -158,6 +158,7 @@ class FdaFlightView(tk.Canvas):
         self.draw_title()
         self.draw_axis()
         self.draw_curves()
+        self.draw_max_alt()
 
     def draw_title(self):
         # Flight description in upper left corner.
@@ -315,3 +316,22 @@ class FdaFlightView(tk.Canvas):
             y_alt_prev = y_alt_next
             y_temp_prev = y_temp_next
             y_soft_prev = y_soft_next
+
+    def draw_max_alt(self):
+        src = self._data_source
+        time_lo, time_hi = src.time_lo, src.time_hi
+
+        max_alt = self._data_source.get_max_alt()
+        for time, alt in max_alt:
+
+            if not time_lo <= time <= time_hi:
+                continue
+
+            rel_time = time - self._x_time_offset
+            px_time = self.LEFT_MARGIN + self.seconds_to_px(rel_time)
+
+            px_alt = self.alt_to_px(alt)
+
+            self.create_rectangle(px_time - 3, px_alt - 3,
+                px_time + 3, px_alt + 3,
+                outline='yellow', width=3.0)

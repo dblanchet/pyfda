@@ -97,3 +97,15 @@ class FdaFlightViewDataSource:
     def find_nearest_values(self, time):
         # Return values except soften alt curve.
         return min(self.full_data, key=lambda x: abs(x[0] - time))[0:3]
+
+    def get_max_alt(self):
+        # Return all maximum altitudes records,
+        # for both raw and softened altitude.
+        max_alt = max(rec[2] for rec in self.full_data)
+        max_alt_rec = [(r[0], r[2]) for r in self.full_data if r[2] == max_alt]
+
+        max_soft = max(rec[3] for rec in self.full_data)
+        max_soft_rec = [(r[0], r[3]) for r in self.full_data
+                if r[3] == max_soft]
+
+        return max_alt_rec + max_soft_rec
