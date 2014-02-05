@@ -1,26 +1,3 @@
-# vim:nosi:
-
-# TODO
-#
-# All
-#  - Add licence to this code.
-#  - Unit tests!
-#  - Test on Linux (py2 and py3)
-#  - Test on Mac (py3)
-#  - Test on Windows (py2 and py3)
-#
-# Library
-#  - Merge device and altimeter, split altimeter and parser.
-#  - Error reporting (given/expected in exceptions).
-#  - Do not open port when no interaction is required.
-#  - Do not expose port primitives.
-#
-# CLI
-#  - Seperate altimeter interaction and data writing.
-#
-# GUI (Tkinter)
-#  - Start writing it.
-
 import platform
 
 import serialprotocol as sp
