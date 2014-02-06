@@ -1,4 +1,9 @@
 
+GETTEXT = ~/Downloads/pygettext.py
+
+langtemplate:
+	$(GETTEXT) -o gui/lang.pot gui/*.py
+
 test:
 	python -m unittest discover
 
