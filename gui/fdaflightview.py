@@ -26,6 +26,10 @@ class FdaFlightView(tk.Canvas):
         self.bind('<ButtonPress-1>', self.on_button1_press)
         self.bind('<ButtonRelease-1>', self.on_button1_release)
 
+        self.value_info_fmt = \
+                _(u' Data at %.3f secs: %d °C and %.1f m (%.1f m)')
+        self.mouse_info_fmt = _(u'Mouse at %.3f secs: %.1f °C and %.1f m')
+
     def set_x_scale(self, x_scale):
         self._x_scale = x_scale
         self._data_source.set_time_scale(x_scale)
@@ -38,8 +42,9 @@ class FdaFlightView(tk.Canvas):
         # Refresh content.
         self.update_content()
 
+    # X axis conversion routines.
+
     def px_to_seconds(self, px):
-        # Scrolling conversion routine.
         src = self._data_source
         adjusted_duration = src.time_hi - src.time_lo
 
@@ -47,15 +52,29 @@ class FdaFlightView(tk.Canvas):
         return px * sec_per_pixel
 
     def seconds_to_px(self, seconds):
-        # Scrolling conversion routine.
         src = self._data_source
         adjusted_duration = src.time_hi - src.time_lo
 
         px_per_seconds = self._adjusted_width / adjusted_duration
         return seconds * px_per_seconds
 
+    # Y axis conversion routines.
+
+    def px_to_alt(self, px):
+        src = self._data_source
+        alt_range = src.alt_max - src.alt_min
+
+        rel_px = (1.0 * px - self.TOP_MARGIN) / self._adjusted_height
+        return src.alt_min + (1.0 - rel_px) * alt_range
+
+    def px_to_temp(self, px):
+        src = self._data_source
+        temp_range = src.temp_max - src.temp_min
+
+        rel_px = (1.0 * px - self.TOP_MARGIN) / self._adjusted_height
+        return src.temp_min + (1.0 - rel_px) * temp_range
+
     def alt_to_px(self, altitude):
-        # Y-axis value conversion routines.
         src = self._data_source
         alt_min, alt_max = src.alt_min, src.alt_max
 
@@ -63,7 +82,6 @@ class FdaFlightView(tk.Canvas):
         return self.TOP_MARGIN + (1.0 - rel_alt) * self._adjusted_height
 
     def temp_to_px(self, temperature):
-        # Y-axis value conversion routines.
         src = self._data_source
         temp_min, temp_max = src.temp_min, src.temp_max
 
@@ -89,10 +107,6 @@ class FdaFlightView(tk.Canvas):
 
     def on_mouse_motion(self, event):
         x, y = event.x, event.y
-        # DEBUG
-        #mouse_pos = '(%d, %d)  ' % (x, y)
-        #self.create_rectangle(200, 5, 300, 20, fill='lightgrey')
-        #self.create_text(300, 5, anchor='ne', text=mouse_pos)
 
         if self._scrolling:
 
@@ -113,6 +127,33 @@ class FdaFlightView(tk.Canvas):
             if self._x_time_offset != prev_time_offset:
                 self.update_content()
 
+        else:
+
+            # Give information about hovered value.
+            #
+            # Remove previous information.
+            self.create_rectangle(200, 5, 1000, 20, fill='lightgrey')
+
+            # Check if mouse pointer is in curve zone.
+            if self.LEFT_MARGIN <= x <= self._width - self.RIGHT_MARGIN:
+
+                # Find time value for current x coordinate.
+                rel_time = self.px_to_seconds(x - self.LEFT_MARGIN)
+                abs_time = rel_time + self._x_time_offset
+
+                # Get nearest pointed value.
+                src = self._data_source
+                time, temp, alt, soft = src.find_nearest_values(abs_time)
+
+                # Show pointed value information to user.
+                pointed_value = self.value_info_fmt % (time, temp, alt, soft)
+                self.create_text(200, 5, anchor='nw', text=pointed_value)
+
+                # Show mouse position information to user.
+                pointed_value = self.mouse_info_fmt % \
+                        (abs_time, self.px_to_temp(y), self.px_to_alt(y))
+                self.create_text(650, 5, anchor='nw', text=pointed_value)
+
     def display_flight_data(self, data_source):
         self._data_source = data_source
 
@@ -126,7 +167,6 @@ class FdaFlightView(tk.Canvas):
         self.on_resize(None)
 
     def on_resize(self, event):
-
         # Get new canvas size.
         width = self.winfo_width()
         if width == 1:
@@ -275,7 +315,6 @@ class FdaFlightView(tk.Canvas):
             temp -= val_interv
 
     def draw_curves(self):
-
         # Displayed part of data.
         src = self._data_source
         curve_data = src.get_displayed_data()
