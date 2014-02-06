@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2014-01-18 23:24+CET\n"
+"POT-Creation-Date: 2014-02-06 08:58+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,31 +15,43 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 
-#: gui/fdafileviewer.py:249
-msgid "altitude (m)"
-msgstr ""
-
-#: gui/fdafileviewer.py:251
-msgid "temperature (\302\260C)"
-msgstr ""
-
-#: gui/fdafileviewer.py:253
-msgid "time (s)"
-msgstr ""
-
-#: gui/fdafileviewer.py:403
+#: gui/fdafileviewer.py:24
 msgid "FlyDream Altimeter - Data Flight Viewer"
 msgstr ""
 
-#: gui/fdafileviewer.py:421
+#: gui/fdafileviewer.py:42
 msgid "Load file..."
 msgstr ""
 
-#: gui/fdafileviewer.py:448
+#: gui/fdafileviewer.py:68
 msgid "Flydream Altimeter Data"
 msgstr ""
 
-#: gui/fdafileviewer.py:449
+#: gui/fdafileviewer.py:69
 msgid "All files"
+msgstr ""
+
+#: gui/fdaflightview.py:30
+msgid " Data at %.3f secs: %d \302\260C and %.1f m (%.1f m)"
+msgstr ""
+
+#: gui/fdaflightview.py:31
+msgid "Mouse at %.3f secs: %d \302\260C and %.1f m"
+msgstr ""
+
+#: gui/fdaflightview.py:221
+msgid "altitude (m)"
+msgstr ""
+
+#: gui/fdaflightview.py:223
+msgid "temperature (\302\260C)"
+msgstr ""
+
+#: gui/fdaflightview.py:225
+msgid "time (s)"
+msgstr ""
+
+#: gui/util.py:6
+msgid "%3.3d - %10.3f secs @ %d Hz"
 msgstr ""
 
