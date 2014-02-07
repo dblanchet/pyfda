@@ -130,29 +130,7 @@ class FdaFlightView(tk.Canvas):
         else:
 
             # Give information about hovered value.
-            #
-            # Remove previous information.
-            self.create_rectangle(200, 5, 1000, 20, fill='lightgrey')
-
-            # Check if mouse pointer is in curve zone.
-            if self.LEFT_MARGIN <= x <= self._width - self.RIGHT_MARGIN:
-
-                # Find time value for current x coordinate.
-                rel_time = self.px_to_seconds(x - self.LEFT_MARGIN)
-                abs_time = rel_time + self._x_time_offset
-
-                # Get nearest pointed value.
-                src = self._data_source
-                time, temp, alt, soft = src.find_nearest_values(abs_time)
-
-                # Show pointed value information to user.
-                pointed_value = self.value_info_fmt % (time, temp, alt, soft)
-                self.create_text(200, 5, anchor='nw', text=pointed_value)
-
-                # Show mouse position information to user.
-                pointed_value = self.mouse_info_fmt % \
-                        (abs_time, self.px_to_temp(y), self.px_to_alt(y))
-                self.create_text(650, 5, anchor='nw', text=pointed_value)
+            self.draw_value_under_mouse(x, y)
 
     def display_flight_data(self, data_source):
         self._data_source = data_source
@@ -374,3 +352,27 @@ class FdaFlightView(tk.Canvas):
             self.create_rectangle(px_time - 3, px_alt - 3,
                 px_time + 3, px_alt + 3,
                 outline='yellow', width=3.0)
+
+    def draw_value_under_mouse(self, x, y):
+        # Remove previous information.
+        self.create_rectangle(200, 5, 1000, 20, fill='lightgrey')
+
+        # Check if mouse pointer is in curve zone.
+        if self.LEFT_MARGIN <= x <= self._width - self.RIGHT_MARGIN:
+
+            # Find time value for current x coordinate.
+            rel_time = self.px_to_seconds(x - self.LEFT_MARGIN)
+            abs_time = rel_time + self._x_time_offset
+
+            # Get nearest pointed value.
+            src = self._data_source
+            time, temp, alt, soft = src.find_nearest_values(abs_time)
+
+            # Show pointed value information to user.
+            pointed_value = self.value_info_fmt % (time, temp, alt, soft)
+            self.create_text(200, 5, anchor='nw', text=pointed_value)
+
+            # Show mouse position information to user.
+            pointed_value = self.mouse_info_fmt % \
+                    (abs_time, self.px_to_temp(y), self.px_to_alt(y))
+            self.create_text(650, 5, anchor='nw', text=pointed_value)
