@@ -15,6 +15,8 @@ class FdaFlightView(tk.Canvas):
     TOP_MARGIN = 30     # Plot title.
     BOTTOM_MARGIN = 30  # Digits of horizontal time bottom axis.
 
+    AXIS_MARGIN = 5     # Minimal distance between axis and curves.
+
     def __init__(self, parent, *args, **kwargs):
         tk.Canvas.__init__(self, parent, bg='lightgrey', *args, **kwargs)
         self._data_source = None
@@ -185,9 +187,8 @@ class FdaFlightView(tk.Canvas):
 
     def draw_axis(self):
         # Draw axis lines.
-        axis_margin = 5
-        top = self.TOP_MARGIN - axis_margin
-        bottom = self._height - self.BOTTOM_MARGIN + axis_margin
+        top = self.TOP_MARGIN - self.AXIS_MARGIN
+        bottom = self._height - self.BOTTOM_MARGIN + self.AXIS_MARGIN
         right = self._width - self.RIGHT_MARGIN
 
         left_margin = self.LEFT_MARGIN
