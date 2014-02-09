@@ -376,7 +376,8 @@ class FdaFlightView(tk.Canvas):
             self.temp_val = None
 
         # Check if mouse pointer is in curve zone.
-        if self.LEFT_MARGIN <= x <= self._width - self.RIGHT_MARGIN:
+        if self.LEFT_MARGIN <= x <= self._width - self.RIGHT_MARGIN \
+                and self.TOP_MARGIN <= y <= self._height - self.BOTTOM_MARGIN:
 
             # Find time value for current x coordinate.
             rel_time = self.px_to_seconds(x - self.LEFT_MARGIN)
