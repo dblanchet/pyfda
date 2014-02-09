@@ -17,8 +17,22 @@ class FdaFlightView(tk.Canvas):
 
     AXIS_MARGIN = 5     # Minimal distance between axis and curves.
 
+    BACKGROUND_COLOR = 'lightgrey'
+    AXIS_COLOR = 'black'
+
+    ALTITUDE_CURVE_COLOR = 'red'
+    SOFTEN_ALTITUDE_CURVE_COLOR = 'darkred'
+    TEMP_CURVE_COLOR = 'blue'
+
+    MAX_ALTITUDE_COLOR = 'green'
+
+    CURRENT_ALTITUDE_COLOR = 'yellow'
+    CURRENT_SOFT_ALT_COLOR = 'orange'
+    CURRENT_TEMP_COLOR = 'lightblue'
+
     def __init__(self, parent, *args, **kwargs):
-        tk.Canvas.__init__(self, parent, bg='lightgrey', *args, **kwargs)
+        tk.Canvas.__init__(self, parent, bg=self.BACKGROUND_COLOR,
+                *args, **kwargs)
         self._data_source = None
         self._parent = parent
         self._scrolling = False
@@ -192,24 +206,33 @@ class FdaFlightView(tk.Canvas):
         left_margin = self.LEFT_MARGIN
         self.create_line(left_margin, top,
                 left_margin, bottom,
-                fill='black')
+                fill=self.AXIS_COLOR)
         self.create_line(left_margin, bottom,
                 right, bottom,
-                fill='black')
+                fill=self.AXIS_COLOR)
         self.create_line(right, top,
                 right, bottom,
-                fill='black')
+                fill=self.AXIS_COLOR)
 
         # Add unit labels.
         text_offset = 5
 
         top_margin = self.TOP_MARGIN
-        self.create_text(left_margin + text_offset, top_margin + text_offset,
-                anchor='nw', text=_(u'altitude (m)'), fill='red')
-        self.create_text(right - text_offset, top_margin + text_offset,
-                anchor='ne', text=_(u'temperature (°C)'), fill='blue')
-        self.create_text(left_margin + text_offset, bottom - text_offset,
-                anchor='sw', text=_(u'time (s)'))
+        self.create_text(
+                left_margin + text_offset,
+                top_margin + text_offset,
+                anchor='nw', text=_(u'altitude (m)'),
+                fill=self.ALTITUDE_CURVE_COLOR)
+        self.create_text(
+                right - text_offset,
+                top_margin + text_offset,
+                anchor='ne', text=_(u'temperature (°C)'),
+                fill=self.TEMP_CURVE_COLOR)
+        self.create_text(
+                left_margin + text_offset,
+                bottom - text_offset,
+                anchor='sw', text=_(u'time (s)'),
+                fill=self.AXIS_COLOR)
 
         # Find out suitable unit interval.
         def adapt_axis_scale(full_val_range, px_width, min_val, min_px):
@@ -318,15 +341,17 @@ class FdaFlightView(tk.Canvas):
             self.create_line(
                     x_prev, y_alt_prev,
                     x_next, y_alt_next,
-                    fill='red')
+                    fill=self.ALTITUDE_CURVE_COLOR)
             self.create_line(
                     x_prev, y_soft_prev,
                     x_next, y_soft_next,
-                    fill='darkred', width=3.0)
+                    fill=self.SOFTEN_ALTITUDE_CURVE_COLOR,
+                    width=3.0)
             self.create_line(
                     x_prev, y_temp_prev,
                     x_next, y_temp_next,
-                    fill='blue', width=2.0)
+                    fill=self.TEMP_CURVE_COLOR,
+                    width=2.0)
 
             x_prev = x_next
             y_alt_prev = y_alt_next
@@ -350,7 +375,7 @@ class FdaFlightView(tk.Canvas):
 
             self.create_rectangle(px_time - 3, px_alt - 3,
                 px_time + 3, px_alt + 3,
-                outline='yellow', width=3.0)
+                outline=self.MAX_ALTITUDE_COLOR, width=3.0)
 
     def draw_value_under_mouse(self, x, y):
         # Remove previous information.
@@ -405,30 +430,36 @@ class FdaFlightView(tk.Canvas):
             # Show pointed value information to user.
             px_temp = self.temp_to_px(temp)
             self.temp_val_rect = self.create_rectangle(
-                vline_px - 3, px_temp - 3,
-                vline_px + 3, px_temp + 3,
-                outline='lightblue', width=3.0)
+                    vline_px - 3, px_temp - 3,
+                    vline_px + 3, px_temp + 3,
+                    outline=self.CURRENT_TEMP_COLOR,
+                    width=3.0)
 
             px_soft = self.alt_to_px(soft)
             self.soft_val_rect = self.create_rectangle(
-                vline_px - 3, px_soft - 3,
-                vline_px + 3, px_soft + 3,
-                outline='orange', width=3.0)
+                    vline_px - 3, px_soft - 3,
+                    vline_px + 3, px_soft + 3,
+                    outline=self.CURRENT_SOFT_ALT_COLOR,
+                    width=3.0)
 
             px_alt = self.alt_to_px(alt)
             self.alt_val_rect = self.create_rectangle(
-                vline_px - 3, px_alt - 3,
-                vline_px + 3, px_alt + 3,
-                outline='yellow', width=3.0)
+                    vline_px - 3, px_alt - 3,
+                    vline_px + 3, px_alt + 3,
+                    outline=self.CURRENT_ALTITUDE_COLOR,
+                    width=3.0)
 
             alt_val = _(u'%.1f m') % alt
             self.alt_val = self.create_text(vline_px, px_alt,
-                    anchor='sw', text=alt_val, fill='red')
+                    anchor='sw', text=alt_val,
+                    fill=self.ALTITUDE_CURVE_COLOR)
 
             soft_val = _(u'%.1f m') % soft
             self.soft_val = self.create_text(vline_px, px_soft,
-                    anchor='sw', text=soft_val, fill='darkred')
+                    anchor='sw', text=soft_val,
+                    fill=self.SOFTEN_ALTITUDE_CURVE_COLOR)
 
             temp_val = _(u'%d °C') % temp
             self.temp_val = self.create_text(vline_px, px_temp,
-                    anchor='sw', text=temp_val, fill='blue')
+                    anchor='sw', text=temp_val,
+                    fill=self.TEMP_CURVE_COLOR)
