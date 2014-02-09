@@ -357,6 +357,11 @@ class FdaFlightView(tk.Canvas):
     def draw_value_under_mouse(self, x, y):
         # Remove previous information.
         self.create_rectangle(200, 5, 1000, 20, fill='lightgrey')
+        try:
+            self.delete(self.vline)
+            self.vline = None
+        except AttributeError:
+            pass
 
         # Check if mouse pointer is in curve zone.
         if self.LEFT_MARGIN <= x <= self._width - self.RIGHT_MARGIN:
@@ -368,6 +373,15 @@ class FdaFlightView(tk.Canvas):
             # Get nearest pointed value.
             src = self._data_source
             time, temp, alt, soft = src.find_nearest_values(abs_time)
+
+            # Draw vertical line over the curves.
+            vline_px = self.LEFT_MARGIN + \
+                    self.seconds_to_px(time - self._x_time_offset)
+            self.vline = self.create_line(
+                    vline_px,
+                    self.TOP_MARGIN - self.AXIS_MARGIN,
+                    vline_px,
+                    self._height - self.BOTTOM_MARGIN + self.AXIS_MARGIN)
 
             # Show pointed value information to user.
             pointed_value = self.value_info_fmt % (time, temp, alt, soft)
