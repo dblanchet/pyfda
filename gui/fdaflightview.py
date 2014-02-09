@@ -28,9 +28,7 @@ class FdaFlightView(tk.Canvas):
         self.bind('<ButtonPress-1>', self.on_button1_press)
         self.bind('<ButtonRelease-1>', self.on_button1_release)
 
-        self.value_info_fmt = \
-                _(u' Data at %.3f secs: %d °C and %.1f m (%.1f m)')
-        self.mouse_info_fmt = _(u'Mouse at %.3f secs: %.1f °C and %.1f m')
+        self.mouse_info_fmt = _(u'- Pointer at %.3f secs: %.1f °C and %.1f m')
 
     def set_x_scale(self, x_scale):
         self._x_scale = x_scale
@@ -356,12 +354,26 @@ class FdaFlightView(tk.Canvas):
 
     def draw_value_under_mouse(self, x, y):
         # Remove previous information.
-        self.create_rectangle(200, 5, 1000, 20, fill='lightgrey')
         try:
             self.delete(self.vline)
-            self.vline = None
+            self.delete(self.mpos)
+            self.delete(self.temp_val_rect)
+            self.delete(self.soft_val_rect)
+            self.delete(self.alt_val_rect)
+            self.delete(self.alt_val)
+            self.delete(self.soft_val)
+            self.delete(self.temp_val)
         except AttributeError:
             pass
+        finally:
+            self.vline = None
+            self.mpos = None
+            self.temp_val_rect = None
+            self.soft_val_rect = None
+            self.alt_val_rect = None
+            self.alt_val = None
+            self.soft_val = None
+            self.temp_val = None
 
         # Check if mouse pointer is in curve zone.
         if self.LEFT_MARGIN <= x <= self._width - self.RIGHT_MARGIN:
@@ -369,6 +381,12 @@ class FdaFlightView(tk.Canvas):
             # Find time value for current x coordinate.
             rel_time = self.px_to_seconds(x - self.LEFT_MARGIN)
             abs_time = rel_time + self._x_time_offset
+
+            # Show mouse position information to user.
+            pointed_value = self.mouse_info_fmt % \
+                    (abs_time, self.px_to_temp(y), self.px_to_alt(y))
+            self.mpos = self.create_text(200, 5, anchor='nw',
+                    text=pointed_value)
 
             # Get nearest pointed value.
             src = self._data_source
@@ -384,10 +402,32 @@ class FdaFlightView(tk.Canvas):
                     self._height - self.BOTTOM_MARGIN + self.AXIS_MARGIN)
 
             # Show pointed value information to user.
-            pointed_value = self.value_info_fmt % (time, temp, alt, soft)
-            self.create_text(200, 5, anchor='nw', text=pointed_value)
+            px_temp = self.temp_to_px(temp)
+            self.temp_val_rect = self.create_rectangle(
+                vline_px - 3, px_temp - 3,
+                vline_px + 3, px_temp + 3,
+                outline='lightblue', width=3.0)
 
-            # Show mouse position information to user.
-            pointed_value = self.mouse_info_fmt % \
-                    (abs_time, self.px_to_temp(y), self.px_to_alt(y))
-            self.create_text(650, 5, anchor='nw', text=pointed_value)
+            px_soft = self.alt_to_px(soft)
+            self.soft_val_rect = self.create_rectangle(
+                vline_px - 3, px_soft - 3,
+                vline_px + 3, px_soft + 3,
+                outline='orange', width=3.0)
+
+            px_alt = self.alt_to_px(alt)
+            self.alt_val_rect = self.create_rectangle(
+                vline_px - 3, px_alt - 3,
+                vline_px + 3, px_alt + 3,
+                outline='yellow', width=3.0)
+
+            alt_val = _(u'%.1f m') % alt
+            self.alt_val = self.create_text(vline_px, px_alt,
+                    anchor='sw', text=alt_val, fill='red')
+
+            soft_val = _(u'%.1f m') % soft
+            self.soft_val = self.create_text(vline_px, px_soft,
+                    anchor='sw', text=soft_val, fill='darkred')
+
+            temp_val = _(u'%d °C') % temp
+            self.temp_val = self.create_text(vline_px, px_temp,
+                    anchor='sw', text=temp_val, fill='blue')
