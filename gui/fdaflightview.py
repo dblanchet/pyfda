@@ -150,7 +150,7 @@ class FdaFlightView(tk.Canvas):
                 and self.TOP_MARGIN <= y <= self._height - self.BOTTOM_MARGIN:
 
                 # Give information about hovered value.
-                self.draw_info_under_mouse(x, y)
+                self.update_pointer_info(x, y)
 
             else:
                 # Remove previous information.
@@ -388,19 +388,13 @@ class FdaFlightView(tk.Canvas):
                 px_time + 3, px_alt + 3,
                 outline=self.MAX_ALTITUDE_COLOR, width=3.0)
 
-    def draw_info_under_mouse(self, x, y):
+    def update_pointer_info(self, x, y):
         # Find time value for current x coordinate.
         rel_time = self.px_to_seconds(x - self.LEFT_MARGIN)
         abs_time = rel_time + self._x_time_offset
 
-        # Remove previous information.
-        self.remove_mouse_info()
-
-        # Show mouse position information to user.
-        pointed_value = self.mouse_info_fmt % \
-                (abs_time, self.px_to_temp(y), self.px_to_alt(y))
-        self.mpos = self.create_text(200, 5, anchor='nw',
-                text=pointed_value)
+        # Tell user about mouse pointer information.
+        self.update_mouse_info(abs_time, y)
 
         # Get nearest pointed value.
         src = self._data_source
@@ -411,6 +405,20 @@ class FdaFlightView(tk.Canvas):
             return
         self.prev_time = time
 
+        # Tell user about nearest value.
+        self.update_value_info(time, temp, alt, soft)
+
+    def update_mouse_info(self, time, y):
+        # Remove previous information.
+        self.remove_mouse_info()
+
+        # Show mouse position information to user.
+        pointed_value = self.mouse_info_fmt % \
+                (time, self.px_to_temp(y), self.px_to_alt(y))
+        self.mpos = self.create_text(200, 5, anchor='nw',
+                text=pointed_value)
+
+    def update_value_info(self, time, temp, alt, soft):
         # Remove previous information.
         self.remove_value_info()
 
