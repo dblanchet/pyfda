@@ -44,6 +44,8 @@ class FdaFlightView(tk.Canvas):
 
         self.mouse_info_fmt = _(u'- Pointer at %.3f secs: %.1f °C and %.1f m')
 
+        self.prev_time = -1
+
     def set_x_scale(self, x_scale):
         self._x_scale = x_scale
         self._data_source.set_time_scale(x_scale)
@@ -143,8 +145,17 @@ class FdaFlightView(tk.Canvas):
 
         else:
 
-            # Give information about hovered value.
-            self.draw_value_under_mouse(x, y)
+            # Check if mouse pointer is in curves' zone.
+            if self.LEFT_MARGIN <= x <= self._width - self.RIGHT_MARGIN \
+                and self.TOP_MARGIN <= y <= self._height - self.BOTTOM_MARGIN:
+
+                # Give information about hovered value.
+                self.draw_info_under_mouse(x, y)
+
+            else:
+                # Remove previous information.
+                self.remove_mouse_info()
+                self.remove_value_info()
 
     def display_flight_data(self, data_source):
         self._data_source = data_source
@@ -377,11 +388,90 @@ class FdaFlightView(tk.Canvas):
                 px_time + 3, px_alt + 3,
                 outline=self.MAX_ALTITUDE_COLOR, width=3.0)
 
-    def draw_value_under_mouse(self, x, y):
+    def draw_info_under_mouse(self, x, y):
+        # Find time value for current x coordinate.
+        rel_time = self.px_to_seconds(x - self.LEFT_MARGIN)
+        abs_time = rel_time + self._x_time_offset
+
         # Remove previous information.
+        self.remove_mouse_info()
+
+        # Show mouse position information to user.
+        pointed_value = self.mouse_info_fmt % \
+                (abs_time, self.px_to_temp(y), self.px_to_alt(y))
+        self.mpos = self.create_text(200, 5, anchor='nw',
+                text=pointed_value)
+
+        # Get nearest pointed value.
+        src = self._data_source
+        time, temp, alt, soft = src.find_nearest_values(abs_time)
+
+        # Do not update canvas if value did not change.
+        if self.prev_time == time:
+            return
+        self.prev_time = time
+
+        # Remove previous information.
+        self.remove_value_info()
+
+        # Draw vertical line over the curves.
+        vline_px = self.LEFT_MARGIN + \
+                self.seconds_to_px(time - self._x_time_offset)
+        self.vline = self.create_line(
+                vline_px,
+                self.TOP_MARGIN - self.AXIS_MARGIN,
+                vline_px,
+                self._height - self.BOTTOM_MARGIN + self.AXIS_MARGIN)
+
+        # Show pointed value information to user.
+        px_temp = self.temp_to_px(temp)
+        self.temp_val_rect = self.create_rectangle(
+                vline_px - 3, px_temp - 3,
+                vline_px + 3, px_temp + 3,
+                outline=self.CURRENT_TEMP_COLOR,
+                width=3.0)
+
+        px_soft = self.alt_to_px(soft)
+        self.soft_val_rect = self.create_rectangle(
+                vline_px - 3, px_soft - 3,
+                vline_px + 3, px_soft + 3,
+                outline=self.CURRENT_SOFT_ALT_COLOR,
+                width=3.0)
+
+        px_alt = self.alt_to_px(alt)
+        self.alt_val_rect = self.create_rectangle(
+                vline_px - 3, px_alt - 3,
+                vline_px + 3, px_alt + 3,
+                outline=self.CURRENT_ALTITUDE_COLOR,
+                width=3.0)
+
+        # Draw labels with numerical values.
+        alt_val = _(u'%.1f m') % alt
+        self.alt_val = self.create_text(vline_px, px_alt,
+                anchor='sw', text=alt_val,
+                fill=self.ALTITUDE_CURVE_COLOR)
+
+        soft_val = _(u'%.1f m') % soft
+        self.soft_val = self.create_text(vline_px, px_soft,
+                anchor='sw', text=soft_val,
+                fill=self.SOFTEN_ALTITUDE_CURVE_COLOR)
+
+        temp_val = _(u'%d °C') % temp
+        self.temp_val = self.create_text(vline_px, px_temp,
+                anchor='sw', text=temp_val,
+                fill=self.TEMP_CURVE_COLOR)
+
+    def remove_mouse_info(self):
+        try:
+            self.delete(self.mpos)
+        except AttributeError:
+            pass
+        finally:
+            self.mpos = None
+
+    def remove_value_info(self):
         try:
             self.delete(self.vline)
-            self.delete(self.mpos)
             self.delete(self.temp_val_rect)
             self.delete(self.soft_val_rect)
             self.delete(self.alt_val_rect)
@@ -392,74 +482,9 @@ class FdaFlightView(tk.Canvas):
             pass
         finally:
             self.vline = None
-            self.mpos = None
             self.temp_val_rect = None
             self.soft_val_rect = None
             self.alt_val_rect = None
             self.alt_val = None
             self.soft_val = None
             self.temp_val = None
-
-        # Check if mouse pointer is in curve zone.
-        if self.LEFT_MARGIN <= x <= self._width - self.RIGHT_MARGIN \
-                and self.TOP_MARGIN <= y <= self._height - self.BOTTOM_MARGIN:
-
-            # Find time value for current x coordinate.
-            rel_time = self.px_to_seconds(x - self.LEFT_MARGIN)
-            abs_time = rel_time + self._x_time_offset
-
-            # Show mouse position information to user.
-            pointed_value = self.mouse_info_fmt % \
-                    (abs_time, self.px_to_temp(y), self.px_to_alt(y))
-            self.mpos = self.create_text(200, 5, anchor='nw',
-                    text=pointed_value)
-
-            # Get nearest pointed value.
-            src = self._data_source
-            time, temp, alt, soft = src.find_nearest_values(abs_time)
-
-            # Draw vertical line over the curves.
-            vline_px = self.LEFT_MARGIN + \
-                    self.seconds_to_px(time - self._x_time_offset)
-            self.vline = self.create_line(
-                    vline_px,
-                    self.TOP_MARGIN - self.AXIS_MARGIN,
-                    vline_px,
-                    self._height - self.BOTTOM_MARGIN + self.AXIS_MARGIN)
-
-            # Show pointed value information to user.
-            px_temp = self.temp_to_px(temp)
-            self.temp_val_rect = self.create_rectangle(
-                    vline_px - 3, px_temp - 3,
-                    vline_px + 3, px_temp + 3,
-                    outline=self.CURRENT_TEMP_COLOR,
-                    width=3.0)
-
-            px_soft = self.alt_to_px(soft)
-            self.soft_val_rect = self.create_rectangle(
-                    vline_px - 3, px_soft - 3,
-                    vline_px + 3, px_soft + 3,
-                    outline=self.CURRENT_SOFT_ALT_COLOR,
-                    width=3.0)
-
-            px_alt = self.alt_to_px(alt)
-            self.alt_val_rect = self.create_rectangle(
-                    vline_px - 3, px_alt - 3,
-                    vline_px + 3, px_alt + 3,
-                    outline=self.CURRENT_ALTITUDE_COLOR,
-                    width=3.0)
-
-            alt_val = _(u'%.1f m') % alt
-            self.alt_val = self.create_text(vline_px, px_alt,
-                    anchor='sw', text=alt_val,
-                    fill=self.ALTITUDE_CURVE_COLOR)
-
-            soft_val = _(u'%.1f m') % soft
-            self.soft_val = self.create_text(vline_px, px_soft,
-                    anchor='sw', text=soft_val,
-                    fill=self.SOFTEN_ALTITUDE_CURVE_COLOR)
-
-            temp_val = _(u'%d °C') % temp
-            self.temp_val = self.create_text(vline_px, px_temp,
-                    anchor='sw', text=temp_val,
-                    fill=self.TEMP_CURVE_COLOR)
