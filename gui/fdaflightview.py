@@ -533,7 +533,8 @@ class FdaFlightView(tk.Canvas):
 
     def distribute_labels(self, alt, soft, temp, min_y, max_y, label_height):
         # Order values per vertical positions.
-        l = zip((alt, soft, temp), range(3))
+        y_offset = 1.0 * label_height / 2
+        l = zip((alt + y_offset, soft + y_offset, temp + y_offset), range(3))
         l.sort(key=lambda x: x[0])
         r = zip(*l)
         order = r[1]
