@@ -483,6 +483,14 @@ class FdaFlightView(tk.Canvas):
         else:
             h_anchor = 'w'
 
+        # Properly flow the label without overlaps.
+        highest = max(alt_val_height, soft_val_height, temp_val_height)
+        px_alt, px_soft, px_temp = self.distribute_labels(
+                px_alt, px_soft, px_temp,
+                min_y=self.TOP_MARGIN,
+                max_y=self._height - self.BOTTOM_MARGIN,
+                label_height=highest)
+
         anchor = 's' + h_anchor
         self.alt_val = self.create_text(vline_px, px_alt,
                 anchor=anchor, text=alt_val,
@@ -495,6 +503,49 @@ class FdaFlightView(tk.Canvas):
         self.temp_val = self.create_text(vline_px, px_temp,
                 anchor=anchor, text=temp_val,
                 fill=self.TEMP_CURVE_COLOR)
+
+    def distribute_labels(self, alt, soft, temp, min_y, max_y, label_height):
+        # Order values per vertical positions.
+        l = zip((alt, soft, temp), range(3))
+        l.sort(key=lambda x: x[0])
+        r = zip(*l)
+        order = r[1]
+        y0, y1, y2 = r[0]
+
+        # Ensure no labels overlap.
+        if y2 - y1 < label_height:
+            y2 = y1 + label_height
+
+        if y1 - y0 < label_height:
+            y1 = y0 + label_height
+
+            if y2 - y1 < label_height:
+                y2 = y1 + label_height
+
+        # Ensure top label is inside curve zone.
+        if y0 - label_height < self.TOP_MARGIN:
+            y0 = self.TOP_MARGIN + label_height
+
+            if y1 - y0 < label_height:
+                y1 = y0 + label_height
+
+                if y2 - y1 < label_height:
+                    y2 = y1 + label_height
+
+        # Ensure bottom label is still inside curve zone.
+        if y2 >= self._height - self.BOTTOM_MARGIN:
+            y2 = self._height - self.BOTTOM_MARGIN
+
+            if y2 - y1 < label_height:
+                y1 = y2 - label_height
+
+                if y1 - y0 < label_height:
+                    y0 = y1 - label_height
+
+        # Restore expected order.
+        l = zip((y0, y1, y2), order)
+        l.sort(key=lambda x: x[1])
+        return zip(*l)[0]
 
     def remove_mouse_info(self):
         try:
