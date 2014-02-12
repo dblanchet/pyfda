@@ -1,5 +1,6 @@
-Command-line and GUI tools for Flydream Altimeter flight data extraction and
-visulization.
+`pyfda` is a collection of command-line and GUI tools for [Flydream
+Altimeter](http://www.fd-rc.com/Showcpzs.asp?id=893) flight data
+extraction and visualization.
 
 I wrote `pyfda` because the altimeter came with a Windows-only software.
 
