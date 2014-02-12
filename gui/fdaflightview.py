@@ -351,19 +351,19 @@ class FdaFlightView(tk.Canvas):
             y_soft_next = self.alt_to_px(soft_alt)
 
             self.create_line(
-                    x_prev, y_alt_prev,
-                    x_next, y_alt_next,
-                    fill=self.ALTITUDE_CURVE_COLOR)
+                    x_prev, y_temp_prev,
+                    x_next, y_temp_next,
+                    fill=self.TEMP_CURVE_COLOR,
+                    width=2.0)
             self.create_line(
                     x_prev, y_soft_prev,
                     x_next, y_soft_next,
                     fill=self.SOFTEN_ALTITUDE_CURVE_COLOR,
                     width=3.0)
             self.create_line(
-                    x_prev, y_temp_prev,
-                    x_next, y_temp_next,
-                    fill=self.TEMP_CURVE_COLOR,
-                    width=2.0)
+                    x_prev, y_alt_prev,
+                    x_next, y_alt_next,
+                    fill=self.ALTITUDE_CURVE_COLOR)
 
             x_prev = x_next
             y_alt_prev = y_alt_next
