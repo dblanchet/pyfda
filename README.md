@@ -12,7 +12,7 @@ Dependencies
 ------------
 
 Data extraction relies on `pyserial` library and SILabs
-USB to UART driver :
+USB to UART driver:
 
 * http://pyserial.sourceforge.net/
 * http://www.silabs.com/products/mcu/pages/usbtouartbridgevcpdrivers.aspx
