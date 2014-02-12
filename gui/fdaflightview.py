@@ -490,26 +490,26 @@ class FdaFlightView(tk.Canvas):
 
         # Properly flow the label without overlaps.
         highest = max(alt_val_height, soft_val_height, temp_val_height)
-        px_alt, px_soft, px_temp = self.distribute_labels(
+        px_l_alt, px_l_soft, px_l_temp = self.distribute_labels(
                 px_alt, px_soft, px_temp,
                 min_y=self.TOP_MARGIN,
                 max_y=self._height - self.BOTTOM_MARGIN,
                 label_height=highest)
 
         # Draw labels.
-        items = self.draw_label(vline_px, px_alt,
+        items = self.draw_label(vline_px, px_l_alt,
                         alt_val_witdh, alt_val_height,
                         text=alt_text, align=align_right,
                         fill=self.ALTITUDE_CURVE_COLOR)
         self.value_info_items.extend(items)
 
-        items = self.draw_label(vline_px, px_soft,
+        items = self.draw_label(vline_px, px_l_soft,
                 soft_val_witdh, soft_val_height,
                 text=soft_text, align=align_right,
                 fill=self.SOFTEN_ALTITUDE_CURVE_COLOR)
         self.value_info_items.extend(items)
 
-        items = self.draw_label(vline_px, px_temp,
+        items = self.draw_label(vline_px, px_l_temp,
                 temp_val_witdh, temp_val_height,
                 text=temp_text, align=align_right,
                 fill=self.TEMP_CURVE_COLOR)
