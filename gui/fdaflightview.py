@@ -455,19 +455,45 @@ class FdaFlightView(tk.Canvas):
                 width=3.0)
 
         # Draw labels with numerical values.
+
+        # Get label sizes.
+
+        # Routine to get text item size.
+        scratch = tk.Canvas()
+
+        def text_item_size(text):
+            text_id = scratch.create_text(0, 0, text=text, anchor='nw')
+            bounds = scratch.bbox(text_id)
+            scratch.delete(text_id)
+            return bounds[2:]
+
         alt_val = _(u'%.1f m') % alt
-        self.alt_val = self.create_text(vline_px, px_alt,
-                anchor='sw', text=alt_val,
-                fill=self.ALTITUDE_CURVE_COLOR)
+        alt_val_witdh, alt_val_height = text_item_size(alt_val)
 
         soft_val = _(u'%.1f m') % soft
-        self.soft_val = self.create_text(vline_px, px_soft,
-                anchor='sw', text=soft_val,
-                fill=self.SOFTEN_ALTITUDE_CURVE_COLOR)
+        soft_val_witdh, soft_val_height = text_item_size(soft_val)
 
         temp_val = _(u'%d °C') % temp
+        temp_val_witdh, temp_val_height = text_item_size(temp_val)
+
+        # Take care not to overlap vertical axis.
+        largest = max(alt_val_witdh, soft_val_witdh, temp_val_witdh)
+        if vline_px + largest >= self._width - self.RIGHT_MARGIN:
+            h_anchor = 'e'
+        else:
+            h_anchor = 'w'
+
+        anchor = 's' + h_anchor
+        self.alt_val = self.create_text(vline_px, px_alt,
+                anchor=anchor, text=alt_val,
+                fill=self.ALTITUDE_CURVE_COLOR)
+
+        self.soft_val = self.create_text(vline_px, px_soft,
+                anchor=anchor, text=soft_val,
+                fill=self.SOFTEN_ALTITUDE_CURVE_COLOR)
+
         self.temp_val = self.create_text(vline_px, px_temp,
-                anchor='sw', text=temp_val,
+                anchor=anchor, text=temp_val,
                 fill=self.TEMP_CURVE_COLOR)
 
     def remove_mouse_info(self):
