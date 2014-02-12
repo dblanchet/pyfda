@@ -8,7 +8,16 @@ Currently tested on:
 
 * Mac OS X 10.9.1 with Python 2.7
 
-TODO
+Dependencies
+------------
+
+Data extraction relies on `pyserial` library and SILabs
+USB to UART driver :
+
+* http://pyserial.sourceforge.net/
+* http://www.silabs.com/products/mcu/pages/usbtouartbridgevcpdrivers.aspx
+
+ToDo
 ----
 
 `pyfda` is a work in progress.
