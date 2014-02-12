@@ -10,12 +10,14 @@ _ = gettext.translation('messages', 'gui', fallback=True).ugettext
 
 class FdaFlightView(tk.Canvas):
 
-    LEFT_MARGIN = 40    # Digits of vertical altitude left axis.
-    RIGHT_MARGIN = 30   # Digits of vertical temperature right axis.
-    TOP_MARGIN = 30     # Plot title.
-    BOTTOM_MARGIN = 30  # Digits of horizontal time bottom axis.
+    LEFT_MARGIN = 40        # Digits of vertical altitude left axis.
+    RIGHT_MARGIN = 30       # Digits of vertical temperature right axis.
+    TOP_MARGIN = 30         # Plot title.
+    BOTTOM_MARGIN = 30      # Digits of horizontal time bottom axis.
 
-    AXIS_MARGIN = 5     # Minimal distance between axis and curves.
+    AXIS_MARGIN = 5         # Minimal distance between axis and curves.
+
+    LABEL_X_OFFSET = 10     # Distance between value on curve and label.
 
     BACKGROUND_COLOR = 'lightgrey'
     AXIS_COLOR = 'black'
@@ -29,6 +31,9 @@ class FdaFlightView(tk.Canvas):
     CURRENT_ALTITUDE_COLOR = 'yellow'
     CURRENT_SOFT_ALT_COLOR = 'orange'
     CURRENT_TEMP_COLOR = 'lightblue'
+
+    LABEL_FILL_COLOR = 'khaki1'
+    LABEL_OULINE_COLOR = AXIS_COLOR
 
     def __init__(self, parent, *args, **kwargs):
         tk.Canvas.__init__(self, parent, bg=self.BACKGROUND_COLOR,
@@ -426,39 +431,41 @@ class FdaFlightView(tk.Canvas):
         # Draw vertical line over the curves.
         vline_px = self.LEFT_MARGIN + \
                 self.seconds_to_px(time - self._x_time_offset)
-        self.vline = self.create_line(
+        vline = self.create_line(
                 vline_px,
                 self.TOP_MARGIN - self.AXIS_MARGIN,
                 vline_px,
                 self._height - self.BOTTOM_MARGIN + self.AXIS_MARGIN)
+        self.value_info_items.append(vline)
 
         # Show pointed value information to user.
         px_temp = self.temp_to_px(temp)
-        self.temp_val_rect = self.create_rectangle(
+        temp_val_rect = self.create_rectangle(
                 vline_px - 3, px_temp - 3,
                 vline_px + 3, px_temp + 3,
                 outline=self.CURRENT_TEMP_COLOR,
                 width=3.0)
+        self.value_info_items.append(temp_val_rect)
 
         px_soft = self.alt_to_px(soft)
-        self.soft_val_rect = self.create_rectangle(
+        soft_val_rect = self.create_rectangle(
                 vline_px - 3, px_soft - 3,
                 vline_px + 3, px_soft + 3,
                 outline=self.CURRENT_SOFT_ALT_COLOR,
                 width=3.0)
+        self.value_info_items.append(soft_val_rect)
 
         px_alt = self.alt_to_px(alt)
-        self.alt_val_rect = self.create_rectangle(
+        alt_val_rect = self.create_rectangle(
                 vline_px - 3, px_alt - 3,
                 vline_px + 3, px_alt + 3,
                 outline=self.CURRENT_ALTITUDE_COLOR,
                 width=3.0)
+        self.value_info_items.append(alt_val_rect)
 
         # Draw labels with numerical values.
 
         # Get label sizes.
-
-        # Routine to get text item size.
         scratch = tk.Canvas()
 
         def text_item_size(text):
@@ -467,21 +474,19 @@ class FdaFlightView(tk.Canvas):
             scratch.delete(text_id)
             return bounds[2:]
 
-        alt_val = _(u'%.1f m') % alt
-        alt_val_witdh, alt_val_height = text_item_size(alt_val)
+        alt_text = _(u'%.1f m') % alt
+        alt_val_witdh, alt_val_height = text_item_size(alt_text)
 
-        soft_val = _(u'%.1f m') % soft
-        soft_val_witdh, soft_val_height = text_item_size(soft_val)
+        soft_text = _(u'%.1f m') % soft
+        soft_val_witdh, soft_val_height = text_item_size(soft_text)
 
-        temp_val = _(u'%d °C') % temp
-        temp_val_witdh, temp_val_height = text_item_size(temp_val)
+        temp_text = _(u'%d °C') % temp
+        temp_val_witdh, temp_val_height = text_item_size(temp_text)
 
         # Take care not to overlap vertical axis.
-        largest = max(alt_val_witdh, soft_val_witdh, temp_val_witdh)
-        if vline_px + largest >= self._width - self.RIGHT_MARGIN:
-            h_anchor = 'e'
-        else:
-            h_anchor = 'w'
+        largest = max(alt_val_witdh, soft_val_witdh, temp_val_witdh) \
+                + self.LABEL_X_OFFSET
+        align_right = vline_px + largest >= self._width - self.RIGHT_MARGIN
 
         # Properly flow the label without overlaps.
         highest = max(alt_val_height, soft_val_height, temp_val_height)
@@ -491,18 +496,40 @@ class FdaFlightView(tk.Canvas):
                 max_y=self._height - self.BOTTOM_MARGIN,
                 label_height=highest)
 
-        anchor = 's' + h_anchor
-        self.alt_val = self.create_text(vline_px, px_alt,
-                anchor=anchor, text=alt_val,
-                fill=self.ALTITUDE_CURVE_COLOR)
+        # Draw labels.
+        items = self.draw_label(vline_px, px_alt,
+                        alt_val_witdh, alt_val_height,
+                        text=alt_text, align=align_right,
+                        fill=self.ALTITUDE_CURVE_COLOR)
+        self.value_info_items.extend(items)
 
-        self.soft_val = self.create_text(vline_px, px_soft,
-                anchor=anchor, text=soft_val,
+        items = self.draw_label(vline_px, px_soft,
+                soft_val_witdh, soft_val_height,
+                text=soft_text, align=align_right,
                 fill=self.SOFTEN_ALTITUDE_CURVE_COLOR)
+        self.value_info_items.extend(items)
 
-        self.temp_val = self.create_text(vline_px, px_temp,
-                anchor=anchor, text=temp_val,
+        items = self.draw_label(vline_px, px_temp,
+                temp_val_witdh, temp_val_height,
+                text=temp_text, align=align_right,
                 fill=self.TEMP_CURVE_COLOR)
+        self.value_info_items.extend(items)
+
+    def draw_label(self, x, y, width, height, text, align, fill):
+        items = []
+        if align:
+            xo = x - self.LABEL_X_OFFSET - width
+        else:
+            xo = x + self.LABEL_X_OFFSET
+        items.append(self.create_rectangle(
+                xo, y, xo + width, y - height,
+                outline=self.LABEL_OULINE_COLOR,
+                fill=self.LABEL_FILL_COLOR))
+        items.append(self.create_text(
+                xo, y,
+                anchor='sw', text=text,
+                fill=fill))
+        return items
 
     def distribute_labels(self, alt, soft, temp, min_y, max_y, label_height):
         # Order values per vertical positions.
@@ -557,20 +584,9 @@ class FdaFlightView(tk.Canvas):
 
     def remove_value_info(self):
         try:
-            self.delete(self.vline)
-            self.delete(self.temp_val_rect)
-            self.delete(self.soft_val_rect)
-            self.delete(self.alt_val_rect)
-            self.delete(self.alt_val)
-            self.delete(self.soft_val)
-            self.delete(self.temp_val)
+            for item in self.value_info_items:
+                self.delete(item)
         except AttributeError:
             pass
         finally:
-            self.vline = None
-            self.temp_val_rect = None
-            self.soft_val_rect = None
-            self.alt_val_rect = None
-            self.alt_val = None
-            self.soft_val = None
-            self.temp_val = None
+            self.value_info_items = []
