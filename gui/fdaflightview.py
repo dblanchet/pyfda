@@ -44,6 +44,7 @@ class FdaFlightView(tk.Canvas):
 
         self.mouse_info_fmt = _(u'- Pointer at %.3f secs: %.1f °C and %.1f m')
 
+        # Prevent unwanted refresh.
         self.prev_time = -1
 
     def set_x_scale(self, x_scale):
