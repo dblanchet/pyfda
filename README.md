@@ -8,6 +8,11 @@ Currently tested on:
 
 * Mac OS X 10.9.1 with Python 2.7
 
+Screenshot
+----------
+
+![screenshot](gui_screenshot.png)
+
 Dependencies
 ------------
 
