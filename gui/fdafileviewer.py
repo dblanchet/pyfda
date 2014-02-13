@@ -7,6 +7,8 @@ from fdaflightlist import FdaFlightList
 from fdaflightview import FdaFlightView
 from fdaflightviewdatasource import FdaFlightViewDataSource
 
+from fdaaltimetercontrol import FdaAltimeterControl
+
 import gettext
 _ = gettext.translation('messages', 'gui', fallback=True).ugettext
 
@@ -47,12 +49,21 @@ class FdaFileViewer(tk.Tk):
         self.flight_info = FdaFlightView(self)
         self.flight_info.grid(column=1, row=0, sticky='NSEW')
 
-        # TODO: Flight display information (units...)
+        # Flight display settings and other controls.
+        frame = tk.Frame(self)
+        frame.grid(column=1, row=1, columnspan=2, sticky='EW')
+
+        # X zoom level.
         self.scale = tk.Scale(self, orient=tk.HORIZONTAL,
                 from_=1.0, to=100.0, resolution=0.1)
-        self.scale.grid(column=1, row=1, columnspan=2, sticky='EW')
+        self.scale.pack(in_=frame, side='left')
         self.scale.bind('<ButtonPress>', self.scale_pressed)
         self.scale.bind('<ButtonRelease>', self.scale_released)
+
+        # Device interaction button.
+        device = tk.Button(self, text=_(u'Altimeter'),
+                command=self.open_device_window)
+        device.pack(in_=frame, side='right')
 
     def scale_pressed(self, event):
         event.widget.bind('<Motion>', self.scale_changed)
@@ -62,6 +73,9 @@ class FdaFileViewer(tk.Tk):
 
     def scale_changed(self, event):
         self.flight_info.set_x_scale(event.widget.get())
+
+    def open_device_window(self):
+        FdaAltimeterControl()
 
     def ask_for_file(self):
         filename = askopenfilename(filetypes=(
