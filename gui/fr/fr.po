@@ -1,12 +1,12 @@
-# SOME DESCRIPTIVE TITLE.
+# PyFdaGui french lang file.
 # Copyright (C) YEAR ORGANIZATION
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# David Blanchet <david.blanchet<five>@gmail.com>, 2014.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.0\n"
 "POT-Creation-Date: 2014-01-18 23:17+CET\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2014-02-16 15:39+CET\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,31 +15,107 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 
-#: gui/fdafileviewer.py:249
-msgid "altitude (m)"
-msgstr "Altitude (m)"
+#: gui/fdaaltimetercontrol.py:29
+msgid "FlyDream Altimeter - Device Controller"
+msgstr "Altimètre FlyDream - Contrôle de l'appareil"
 
-#: gui/fdafileviewer.py:251
-msgid "temperature (\302\260C)"
-msgstr "Température (°C)"
+#: gui/fdaaltimetercontrol.py:39
+msgid "Altimeter plugged on:"
+msgstr "Altimètre branché sur :"
 
-#: gui/fdafileviewer.py:253
-msgid "time (s)"
-msgstr "Temps (s)"
+#: gui/fdaaltimetercontrol.py:41
+msgid "Refresh"
+msgstr "Rafraîchir"
 
-#: gui/fdafileviewer.py:403
+#: gui/fdaaltimetercontrol.py:54
+msgid "Upload"
+msgstr "Téléchargement"
+
+#: gui/fdaaltimetercontrol.py:60
+msgid "Tell the altimeter to send flight data to your computer"
+msgstr "Demander à l'altimètre d'envoyer les données à votre ordinateur"
+
+#: gui/fdaaltimetercontrol.py:64
+msgid "Upload data"
+msgstr "Télécharger"
+
+#: gui/fdaaltimetercontrol.py:72
+msgid "Clear"
+msgstr "Suppression"
+
+#: gui/fdaaltimetercontrol.py:78
+msgid "Delete all the flight data from your altimeter"
+msgstr "Supprimer toutes les données de vols contenues dans votre altimètre"
+
+#: gui/fdaaltimetercontrol.py:81
+msgid "Erase data"
+msgstr "Effacer"
+
+#: gui/fdaaltimetercontrol.py:89
+msgid "Configure"
+msgstr "Configuration"
+
+#: gui/fdaaltimetercontrol.py:99
+msgid "records per second"
+msgstr "mesures par seconde"
+
+#: gui/fdaaltimetercontrol.py:102
+msgid "Set sampling frequency"
+msgstr "Changer la fréquence d'échantillonnage"
+
+#: gui/fdaaltimetercontrol.py:110
+msgid "Erase flight data"
+msgstr "Effacer les données de vol"
+
+#: gui/fdaaltimetercontrol.py:111
+msgid "Really erase all flight data in your altimeter?"
+msgstr "Effacer toutes les données de votre altimètre ?"
+
+#: gui/fdafileviewer.py:26
 msgid "FlyDream Altimeter - Data Flight Viewer"
 msgstr "FlyDream Altimeter - Visualisation de données de vol"
 
-#: gui/fdafileviewer.py:421
+#: gui/fdafileviewer.py:44
 msgid "Load file..."
 msgstr "Charger un fichier..."
 
-#: gui/fdafileviewer.py:448
+#: gui/fdafileviewer.py:64
+msgid "Altimeter"
+msgstr "Altimètre"
+
+#: gui/fdafileviewer.py:82
 msgid "Flydream Altimeter Data"
 msgstr "Données de vol FlyDream Altimeter"
 
-#: gui/fdafileviewer.py:449
+#: gui/fdafileviewer.py:83
 msgid "All files"
 msgstr "Tous les fichiers"
+
+#: gui/fdaflightview.py:50
+msgid "- Pointer at %.3f secs: %.1f \302\260C and %.1f m"
+msgstr " - Pointeur à %.3f secs : %.1f °C et %.1f m"
+
+#: gui/fdaflightview.py:241
+msgid "altitude (m)"
+msgstr "Altitude (m)"
+
+#: gui/fdaflightview.py:246
+msgid "temperature (\302\260C)"
+msgstr "Température (°C)"
+
+#: gui/fdaflightview.py:251
+msgid "time (s)"
+msgstr "Temps (s)"
+
+#: gui/fdaflightview.py:477 gui/fdaflightview.py:480
+msgid "%.1f m"
+msgstr "%.1f m"
+
+#: gui/fdaflightview.py:483
+msgid "%d \302\260C"
+msgstr "%d °C"
+
+#: gui/util.py:6
+msgid "%3.3d - %10.3f secs @ %d Hz"
+msgstr "%3.3d - %10.3f secs à %d Hz"
 
