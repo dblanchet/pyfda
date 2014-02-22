@@ -3,6 +3,7 @@
 import Tkinter as tk
 
 import tkMessageBox
+from ttk import Progressbar
 
 import gettext
 _ = gettext.translation('messages', 'gui', fallback=True).ugettext
@@ -62,10 +63,24 @@ class FdaAltimeterControl(tk.Toplevel):
 
         Separator(frame).pack(fill=tk.X)
 
-        label = tk.Label(frame, anchor=tk.W,
+        self.progressbar = Progressbar(frame, orient='horizontal',
+                mode='determinate')
+        self.progressbar['maximum'] = 100.0
+        self.progressbar['value'] = 50.0
+        self.progressbar.pack(side=tk.BOTTOM, fill=tk.X)
+
+        # Do not show progressbar
+        # unless data is uploaded.
+        self.hide_progressbar()
+
+        self.info_label = tk.Label(frame, anchor=tk.NE, fg='darkgrey',
+                text='/')
+        self.info_label.pack(side=tk.BOTTOM, fill=tk.BOTH)
+
+        self.label = tk.Label(frame, anchor=tk.W,
                 text=_(u'Tell the altimeter to send flight '
                     'data to your computer'))
-        label.pack(side=tk.LEFT)
+        self.label.pack(side=tk.LEFT)
 
         upload = tk.Button(frame, text=_(u'Upload data'),
                 command=self.upload)
@@ -108,6 +123,29 @@ class FdaAltimeterControl(tk.Toplevel):
         setup = tk.Button(frame, text=_(u'Set sampling frequency'),
                 command=self.set_frequency)
         setup.pack(side=tk.RIGHT)
+
+    def hide_progressbar(self):
+        self.progressbar.prev_pack = self.progressbar.pack_info()
+        self.progressbar.pack_forget()
+
+    def show_progressbar(self):
+        # Well, Tkinter pack does not seem to
+        # make it easy to simply hide a widget...
+        #
+        # I may be missing something.
+        prev_info_label_packinfo = self.info_label.pack_info()
+        prev_label_packinfo = self.label.pack_info()
+        prev_upload_packinfo = self.upload.pack_info()
+
+        self.info_label.pack_forget()
+        self.label.pack_forget()
+        self.upload.pack_forget()
+
+        self.progressbar.pack(self.progressbar.prev_pack)
+
+        self.info_label.pack(prev_info_label_packinfo)
+        self.label.pack(prev_label_packinfo)
+        self.upload.pack(prev_upload_packinfo)
 
     def upload(self):
         tkMessageBox.showwarning('Upload flight data', 'Not implemented yet')
