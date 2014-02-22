@@ -27,12 +27,19 @@ class FdaAltimeterControl(tk.Toplevel):
     def __init__(self):
         tk.Toplevel.__init__(self)
 
+        # Do not let user to close this window
+        # is a communication with the Altimeter
+        # is taking place.
+        self.communicating = False
+        self.protocol("WM_DELETE_WINDOW", self.close_asked)
+
+        # Setup window content.
         self.initialize()
 
     def initialize(self):
         self.title(_(u'FlyDream Altimeter - Device Controller'))
 
-        # Set minimal size
+        # Set fixed size.
         self.minsize(640, 320)
         self.resizable(False, False)
 
@@ -123,6 +130,16 @@ class FdaAltimeterControl(tk.Toplevel):
         setup = tk.Button(frame, text=_(u'Set sampling frequency'),
                 command=self.set_frequency)
         setup.pack(side=tk.RIGHT)
+
+    def close_asked(self):
+        if not self.communicating:
+            self.destroy()
+            return
+        else:
+            tkMessageBox.showwarning(_(u'Warning'),
+                    _(u"""The application is communicating with the altimeter.
+
+Please wait until communication is finished before closing this window."""))
 
     def hide_progressbar(self):
         self.progressbar.prev_pack = self.progressbar.pack_info()
