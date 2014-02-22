@@ -7,6 +7,9 @@ import tkMessageBox
 import gettext
 _ = gettext.translation('messages', 'gui', fallback=True).ugettext
 
+from serial.tools import list_ports
+
+from flydream.altimeter import Altimeter
 
 class Separator(tk.Frame):
 
@@ -39,13 +42,16 @@ class FdaAltimeterControl(tk.Toplevel):
         tk.Label(frame, text=_(u'Altimeter plugged on:')).pack(side=tk.LEFT)
 
         detect_button = tk.Button(frame, text=_(u'Refresh'),
-                command=self.detect_serial_ports)
+                command=self.refresh_serial_ports)
         detect_button.pack(side=tk.RIGHT)
 
         self.port = tk.StringVar(self)
-        self.port.set('/dev/altimeter')
-        self.ports = tk.OptionMenu(frame, self.port, '/dev/altimeter')
+        self.ports = tk.OptionMenu(frame, self.port,
+                _(u'Detecting serial ports...'))
         self.ports.pack(fill=tk.BOTH, expand=1)
+
+        # Update possible serial ports.
+        self.refresh_serial_ports()
 
         # Upload altimeter flight data.
         frame = tk.Frame(self, padx=self.SUB_FRAME_X_PADDING)
@@ -118,5 +124,37 @@ class FdaAltimeterControl(tk.Toplevel):
     def set_frequency(self):
         tkMessageBox.showwarning('Upload flight data', 'Not implemented yet')
 
+    def refresh_serial_ports(self):
+        # Build port list.
+        port_list = self.detect_serial_ports()
+
+        # Remove previous items in combobox.
+        menu = self.ports['menu']
+        menu.delete(0, tk.END)
+
+        # Add new items in combobox.
+        self.port.set(port_list[0])
+        for pr in port_list:
+            menu.add_command(label=pr, command=lambda p=pr: self.port.set(p))
+
     def detect_serial_ports(self):
-        tkMessageBox.showwarning('Detect serial ports', 'Not implemented yet')
+        # Try to detect system serial devices.
+        port_list = []
+        try:
+            # Convert to filenames.
+            port_list = [info[0].replace('cu', 'tty')
+                    for info in list_ports.comports()]
+        except Exception as e:
+            tkMessageBox.showwarning('Serial Ports Detection',
+                    'Error while detecting serial ports: %s' % e.message)
+
+        # Insert default port as first entry.
+        default = Altimeter().port
+        try:
+            # Try to remove default one to prevent duplication.
+            port_list.remove(default)
+        except ValueError:
+            pass
+        port_list.insert(0, default)
+
+        return port_list
