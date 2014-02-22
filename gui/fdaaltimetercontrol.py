@@ -49,9 +49,9 @@ class FdaAltimeterControl(tk.Toplevel):
 
         tk.Label(frame, text=_(u'Altimeter plugged on:')).pack(side=tk.LEFT)
 
-        detect_button = tk.Button(frame, text=_(u'Refresh'),
+        self.detect = tk.Button(frame, text=_(u'Refresh'),
                 command=self.refresh_serial_ports)
-        detect_button.pack(side=tk.RIGHT)
+        self.detect.pack(side=tk.RIGHT)
 
         self.port = tk.StringVar(self)
         self.ports = tk.OptionMenu(frame, self.port,
@@ -89,9 +89,9 @@ class FdaAltimeterControl(tk.Toplevel):
                     'data to your computer'))
         self.label.pack(side=tk.LEFT)
 
-        upload = tk.Button(frame, text=_(u'Upload data'),
+        self.upload = tk.Button(frame, text=_(u'Upload data'),
                 command=self.upload)
-        upload.pack(side=tk.RIGHT)
+        self.upload.pack(side=tk.RIGHT)
 
         # Erase altimeter flight data.
         frame = tk.Frame(self, padx=self.SUB_FRAME_X_PADDING)
@@ -106,9 +106,9 @@ class FdaAltimeterControl(tk.Toplevel):
                 text=_(u'Delete all the flight data from your altimeter'))
         label.pack(side=tk.LEFT)
 
-        erase = tk.Button(frame, text=_(u'Erase data'),
+        self.erase = tk.Button(frame, text=_(u'Erase data'),
                 command=self.erase)
-        erase.pack(side=tk.RIGHT)
+        self.erase.pack(side=tk.RIGHT)
 
         # Setup altimeter sampling frequency.
         frame = tk.Frame(self, padx=self.SUB_FRAME_X_PADDING)
@@ -121,15 +121,25 @@ class FdaAltimeterControl(tk.Toplevel):
 
         self.frequency = tk.StringVar(self)
         self.frequency.set('1')
-        frequency = tk.OptionMenu(frame, self.frequency, '1', '2', '4', '8')
-        frequency.pack(side=tk.LEFT)
+        self.frequencies = tk.OptionMenu(frame, self.frequency,
+                '1', '2', '4', '8')
+        self.frequencies.pack(side=tk.LEFT)
 
         label = tk.Label(frame, text=_(u'records per second'))
         label.pack(side=tk.LEFT)
 
-        setup = tk.Button(frame, text=_(u'Set sampling frequency'),
+        self.setup = tk.Button(frame, text=_(u'Set sampling frequency'),
                 command=self.set_frequency)
-        setup.pack(side=tk.RIGHT)
+        self.setup.pack(side=tk.RIGHT)
+
+    def allow_user_interactions(self, allow=True):
+        state = tk.NORMAL if allow else tk.DISABLED
+        self.ports.configure(state=state)
+        self.detect.configure(state=state)
+        self.upload.configure(state=state)
+        self.erase.configure(state=state)
+        self.frequencies.configure(state=state)
+        self.setup.configure(state=state)
 
     def close_asked(self):
         if not self.communicating:
