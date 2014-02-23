@@ -2,13 +2,12 @@
 
 import Tkinter as tk
 
-import time
-import os
-
 import tkMessageBox
 import tkFileDialog
 import tkFont
 from ttk import Progressbar
+
+import time
 
 import gettext
 _ = gettext.translation('messages', 'gui', fallback=True).ugettext
