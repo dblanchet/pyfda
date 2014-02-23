@@ -2,7 +2,11 @@
 
 import Tkinter as tk
 
+import time
+import os
+
 import tkMessageBox
+import tkFileDialog
 from ttk import Progressbar
 
 import gettext
@@ -11,6 +15,14 @@ _ = gettext.translation('messages', 'gui', fallback=True).ugettext
 from serial.tools import list_ports
 
 from flydream.altimeter import Altimeter
+
+from flydream.exception import FlyDreamAltimeterSerialPortError
+from flydream.exception import FlyDreamAltimeterReadError
+from flydream.exception import FlyDreamAltimeterWriteError
+from flydream.exception import FlyDreamAltimeterProtocolError
+
+RAW_FILE_EXTENSION = '.fda'
+
 
 class Separator(tk.Frame):
 
@@ -72,16 +84,16 @@ class FdaAltimeterControl(tk.Toplevel):
 
         self.progressbar = Progressbar(frame, orient='horizontal',
                 mode='determinate')
-        self.progressbar['maximum'] = 100.0
-        self.progressbar['value'] = 50.0
         self.progressbar.pack(side=tk.BOTTOM, fill=tk.X)
 
         # Do not show progressbar
         # unless data is uploaded.
         self.hide_progressbar()
 
+        self.upload_info = tk.StringVar()
+        self.upload_info.set('/')
         self.info_label = tk.Label(frame, anchor=tk.NE, fg='darkgrey',
-                text='/')
+                textvariable=self.upload_info)
         self.info_label.pack(side=tk.BOTTOM, fill=tk.BOTH)
 
         self.label = tk.Label(frame, anchor=tk.W,
@@ -155,6 +167,11 @@ Please wait until communication is finished before closing this window."""))
         self.progressbar.prev_pack = self.progressbar.pack_info()
         self.progressbar.pack_forget()
 
+        self.update()
+
+        # Reset progressbar for next upload.
+        self.progressbar['value'] = 0
+
     def show_progressbar(self):
         # Well, Tkinter pack does not seem to
         # make it easy to simply hide a widget...
@@ -174,8 +191,66 @@ Please wait until communication is finished before closing this window."""))
         self.label.pack(prev_label_packinfo)
         self.upload.pack(prev_upload_packinfo)
 
+        self.update()
+
+    def upload_progressed(self, read, total):
+        self.progressbar['maximum'] = total
+        self.progressbar['value'] = read
+
+        info = _(u'Please wait, %d bytes read out of %d') % (read, total)
+        self.upload_info.set(info)
+
+        self.update()
+
+    def default_filename(self):
+        return time.strftime('%Y-%m-%d %H-%M-%S', time.localtime()) \
+                + '_flight'
+
     def upload(self):
-        tkMessageBox.showwarning('Upload flight data', 'Not implemented yet')
+        # TODO Add please wait message.
+
+        # Update window state.
+        self.show_progressbar()
+        self.allow_user_interactions(False)
+        self.communicating = True
+
+        # Get flight data.
+        port = self.port.get()
+        altimeter = Altimeter(port)
+        try:
+            raw_data = altimeter.upload(self.upload_progressed)
+        except FlyDreamAltimeterSerialPortError:
+            self.show_unfound_altimeter(port)
+        except (FlyDreamAltimeterReadError, FlyDreamAltimeterWriteError) as e:
+            self.show_readwrite_error(port, e.message)
+        except FlyDreamAltimeterProtocolError as e:
+            self.show_protocol_error(port, e.message)
+        else:
+            # Check received data.
+            if len(raw_data.data) == 0:
+                tkMessageBox.showinfo(_(u'Upload Data'),
+                        _(u'Altimeter contains no data.'))
+            else:
+                self.write_flight_data(raw_data)
+        finally:
+            # Restore window state.
+            self.communicating = False
+            self.allow_user_interactions()
+            self.hide_progressbar()
+
+        # TODO Update altimeter information.
+        self.upload_info.set('Done')
+
+    def write_flight_data(self, raw_data):
+        fname = tkFileDialog.asksaveasfilename(
+                    filetypes=((_(u'Flydream Altimeter Data'), '*.fda'),
+                               (_(u'All files'), '*.*')),
+                    title=_(u'Save flight data...'),
+                    initialdir='~',
+                    initialfile=self.default_filename(),
+                    defaultextension=RAW_FILE_EXTENSION)
+        if fname:
+            raw_data.to_file(fname)
 
     def erase(self):
         reply = tkMessageBox.askokcancel(_(u'Erase flight data'),
@@ -188,6 +263,42 @@ Please wait until communication is finished before closing this window."""))
 
     def set_frequency(self):
         tkMessageBox.showwarning('Upload flight data', 'Not implemented yet')
+
+    def show_unfound_altimeter(self, port):
+        tkMessageBox.showwarning(_(u'Sampling Frequency'),
+                    _(u"""Can not open port: %s
+
+Please ensure that:
+ - your altimeter is plugged to the USB adapter.
+ - the USB adapter is plugged to your computer.
+ - the choosen port is correct.
+ - the USB adapter driver is properly installed on your computer, see
+   http://www.silabs.com/products/mcu/pages/usbtouartbridgevcpdrivers.aspx""")
+                    % port)
+
+    def show_readwrite_error(self, port, message):
+        tkMessageBox.showwarning(_(u'Read/Write error'),
+                    _(u"""With device on: %s
+
+Internal error message: %s
+
+Please ensure that:
+ - the choosen port is correct.
+ - your altimeter is plugged to the USB adapter.
+ - the USB adapter is plugged to your computer.
+ - you did not unplugged the altimeter while it was communicating.""")
+                    % (port, message))
+
+    def show_protocol_error(self, port, message):
+        tkMessageBox.showwarning(_(u'Protocol error'),
+                    _(u"""With device on: %s
+
+Internal error message: %s
+
+Please ensure that:
+ - your altimeter is plugged to the USB adapter.
+ - you did not unplugged the altimeter while it was communicating.""")
+                    % (port, message))
 
     def refresh_serial_ports(self):
         # Build port list.
