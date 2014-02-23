@@ -7,6 +7,7 @@ import os
 
 import tkMessageBox
 import tkFileDialog
+import tkFont
 from ttk import Progressbar
 
 import gettext
@@ -80,6 +81,11 @@ class FdaAltimeterControl(tk.Toplevel):
         label = tk.Label(frame, anchor=tk.W, text=_(u'Upload'))
         label.pack(side=tk.TOP, fill=tk.X)
 
+        # Setup bold font for titles.
+        f = tkFont.Font(font=label['font'])
+        f['weight'] = 'bold'
+        label['font'] = f.name
+
         Separator(frame).pack(fill=tk.X)
 
         self.progressbar = Progressbar(frame, orient='horizontal',
@@ -110,6 +116,7 @@ class FdaAltimeterControl(tk.Toplevel):
         frame.pack(fill=tk.BOTH, expand=tk.YES)
 
         label = tk.Label(frame, anchor=tk.W, text=_(u'Clear'))
+        label['font'] = f.name
         label.pack(side=tk.TOP, fill=tk.X)
 
         Separator(frame).pack(fill=tk.X)
@@ -127,6 +134,7 @@ class FdaAltimeterControl(tk.Toplevel):
         frame.pack(fill=tk.BOTH, expand=tk.YES)
 
         label = tk.Label(frame, anchor=tk.W, text=_(u'Configure'))
+        label['font'] = f.name
         label.pack(side=tk.TOP, fill=tk.X)
 
         Separator(frame).pack(fill=tk.X)
