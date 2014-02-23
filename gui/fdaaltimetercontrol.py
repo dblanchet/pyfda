@@ -262,7 +262,30 @@ Please wait until communication is finished before closing this window."""))
         tkMessageBox.showwarning('Erase flight data', 'Not implemented yet')
 
     def set_frequency(self):
-        tkMessageBox.showwarning('Upload flight data', 'Not implemented yet')
+        # This request is almost immediate,
+        # so let's not bother user with yet
+        # another message.
+
+        # Update window state.
+        self.allow_user_interactions(False)
+        self.communicating = True
+
+        # Change altimeter sampling frequency.
+        freq = int(self.frequency.get())
+        port = self.port.get()
+        altimeter = Altimeter(port)
+        try:
+            altimeter.setup(freq)
+        except FlyDreamAltimeterSerialPortError:
+            self.show_unfound_altimeter(port)
+        except (FlyDreamAltimeterReadError, FlyDreamAltimeterWriteError) as e:
+            self.show_readwrite_error(port, e.message)
+        except FlyDreamAltimeterProtocolError as e:
+            self.show_protocol_error(port, e.message)
+        finally:
+            # Restore window state.
+            self.communicating = False
+            self.allow_user_interactions()
 
     def show_unfound_altimeter(self, port):
         tkMessageBox.showwarning(_(u'Sampling Frequency'),
