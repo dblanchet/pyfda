@@ -289,6 +289,9 @@ Please wait until communication is finished before closing this window."""))
             self.show_readwrite_error(port, e.message)
         except FlyDreamAltimeterProtocolError as e:
             self.show_protocol_error(port, e.message)
+        else:
+            # Update altimeter information.
+            self.upload_info.set('Altimeter sampling frequency set')
         finally:
             # Restore window state.
             self.communicating = False
