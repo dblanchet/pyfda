@@ -266,7 +266,33 @@ Please wait until communication is finished before closing this window."""))
             self.do_erase()
 
     def do_erase(self):
-        tkMessageBox.showwarning('Erase flight data', 'Not implemented yet')
+        # TODO Make message stay while erasing is performed.
+        tkMessageBox.showwarning('Erasing...',
+                'Do not disconnect USB until altimeter blue LED '
+                'lights again.')
+
+        # Update window state.
+        self.allow_user_interactions(False)
+        self.communicating = True
+
+        # Reset altimeter content.
+        port = self.port.get()
+        altimeter = Altimeter(port)
+        try:
+            altimeter.clear()
+        except FlyDreamAltimeterSerialPortError:
+            self.show_unfound_altimeter(port)
+        except (FlyDreamAltimeterReadError, FlyDreamAltimeterWriteError) as e:
+            self.show_readwrite_error(port, e.message)
+        except FlyDreamAltimeterProtocolError as e:
+            self.show_protocol_error(port, e.message)
+        else:
+            # Update altimeter information.
+            self.upload_info.set('Altimeter content erased')
+        finally:
+            # Restore window state.
+            self.communicating = False
+            self.allow_user_interactions()
 
     def set_frequency(self):
         # This request is almost immediate,
