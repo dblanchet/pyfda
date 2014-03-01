@@ -271,7 +271,7 @@ Please wait until communication is finished before closing this window."""))
     def set_frequency(self):
         # This request is almost immediate,
         # so let's not bother user with yet
-        # another message.
+        # another message box.
 
         # Update window state.
         self.allow_user_interactions(False)
