@@ -45,14 +45,14 @@ macos_bundle:
 	mkdir $(BUNDLE_NAME).app/Contents/MacOS
 	mkdir $(BUNDLE_NAME).app/Contents/Resources
 
-	cp tool/Info.plist.tmpl $(BUNDLE_NAME).app/Contents/Info.plist
+	cp res/macos/Info.plist.tmpl $(BUNDLE_NAME).app/Contents/Info.plist
 	sed -i '' 's/BUNDLE_INFO_STRING/$(BUNDLE_INFO_STRING)/' $(BUNDLE_NAME).app/Contents/Info.plist
 	sed -i '' 's/BUNDLE_IDENTIFIER/$(BUNDLE_IDENTIFIER)/' $(BUNDLE_NAME).app/Contents/Info.plist
 	sed -i '' 's/BUNDLE_NAME/$(BUNDLE_NAME)/' $(BUNDLE_NAME).app/Contents/Info.plist
 	sed -i '' 's/BUNDLE_SHORT_VERSION/$(BUNDLE_SHORT_VERSION)/' $(BUNDLE_NAME).app/Contents/Info.plist
 	sed -i '' 's/BUNDLE_VERSION/$(BUNDLE_VERSION)/' $(BUNDLE_NAME).app/Contents/Info.plist
 
-	cp tool/PkgInfo $(BUNDLE_NAME).app/Contents
+	cp res/macos/PkgInfo $(BUNDLE_NAME).app/Contents
 
 	cp pyfda.py $(BUNDLE_NAME).app/Contents/MacOS/
 	cp pyfdagui.py $(BUNDLE_NAME).app/Contents/MacOS/
@@ -60,5 +60,5 @@ macos_bundle:
 	cp -r flydream $(BUNDLE_NAME).app/Contents/MacOS/
 	cp -r gui $(BUNDLE_NAME).app/Contents/MacOS/
 
-	cp tool/PyFda.icns $(BUNDLE_NAME).app/Contents/Resources/
+	cp res/macos/PyFda.icns $(BUNDLE_NAME).app/Contents/Resources/
 
