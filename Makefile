@@ -43,6 +43,7 @@ macos_bundle:
 	mkdir $(BUNDLE_NAME).app
 	mkdir $(BUNDLE_NAME).app/Contents
 	mkdir $(BUNDLE_NAME).app/Contents/MacOS
+	mkdir $(BUNDLE_NAME).app/Contents/Resources
 
 	cp tool/Info.plist.tmpl $(BUNDLE_NAME).app/Contents/Info.plist
 	sed -i '' 's/BUNDLE_INFO_STRING/$(BUNDLE_INFO_STRING)/' $(BUNDLE_NAME).app/Contents/Info.plist
@@ -58,4 +59,6 @@ macos_bundle:
 
 	cp -r flydream $(BUNDLE_NAME).app/Contents/MacOS/
 	cp -r gui $(BUNDLE_NAME).app/Contents/MacOS/
+
+	cp tool/PyFda.icns $(BUNDLE_NAME).app/Contents/Resources/
 
