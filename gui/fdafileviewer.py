@@ -13,6 +13,18 @@ import gettext
 _ = gettext.translation('messages', 'gui', fallback=True).ugettext
 
 
+# Check Python interpreter version.
+import sys
+
+if sys.version_info < (2, 7, 0):
+    import tkMessageBox
+    tkMessageBox.showwarning(_(u'FlyDream Altimeter - Data Flight Viewer'),
+            _(u"This application requires Python 2.7.\n\n"
+                "Detected on your system: Python %d.%d")
+            % sys.version_info[:2])
+    exit(1)
+
+
 class FdaFileViewer(tk.Tk):
 
     def __init__(self, filename):
