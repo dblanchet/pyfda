@@ -65,17 +65,21 @@ class FdaFileViewer(tk.Tk):
         frame = tk.Frame(self)
         frame.grid(column=1, row=1, columnspan=2, sticky='EW')
 
-        # X zoom level.
-        self.scale = tk.Scale(self, orient=tk.HORIZONTAL,
-                from_=1.0, to=100.0, resolution=0.1)
-        self.scale.pack(in_=frame, side='left')
-        self.scale.bind('<ButtonPress>', self.scale_pressed)
-        self.scale.bind('<ButtonRelease>', self.scale_released)
-
         # Device interaction button.
         device = tk.Button(self, text=_(u'Altimeter'),
                 command=self.open_device_window)
         device.pack(in_=frame, side='right')
+
+        # X zoom label.
+        label = tk.Label(self, text=_(u'Zoom:'))
+        label.pack(in_=frame, side='left')
+
+        # X zoom scale.
+        self.scale = tk.Scale(self, orient=tk.HORIZONTAL,
+                from_=1.0, to=100.0, resolution=0.1)
+        self.scale.pack(in_=frame, fill='x')
+        self.scale.bind('<ButtonPress>', self.scale_pressed)
+        self.scale.bind('<ButtonRelease>', self.scale_released)
 
     def scale_pressed(self, event):
         event.widget.bind('<Motion>', self.scale_changed)
