@@ -1,7 +1,12 @@
 try:
     import serial
 except ImportError:
-    print('''This software requires "pyserial" to be installed on your computer
+    # If not system-wide serial module
+    # is installed, use a possible local one.
+    try:
+        import pyserial as serial
+    except:
+        print('''This software requires "pyserial" to be installed on your computer
 Please visit http://pyserial.sourceforge.net/pyserial.html#installation''')
 
 from contextlib import contextmanager

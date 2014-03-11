@@ -12,7 +12,17 @@ import time
 import gettext
 _ = gettext.translation('messages', 'gui', fallback=True).ugettext
 
-from serial.tools import list_ports
+try:
+    from serial.tools import list_ports
+except ImportError:
+    try:
+        from pyserial.tools import list_ports
+    except ImportError:
+        tkMessageBox.showwarning('Altimeter interaction',
+                'Its appears that "pyserial" Python module is not available'
+                ' on your system. This module is required to interact with '
+                'your altimeter.\n\n'
+                'You will be limited to file visualization.')
 
 from flydream.altimeter import Altimeter
 
