@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.0\n"
 "POT-Creation-Date: 2014-01-18 23:17+CET\n"
-"PO-Revision-Date: 2014-02-16 15:39+CET\n"
+"PO-Revision-Date: 2014-03-11 15:39+CET\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,81 +15,200 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 
-#: gui/fdaaltimetercontrol.py:29
+#: gui/fdaaltimetercontrol.py:65
 msgid "FlyDream Altimeter - Device Controller"
 msgstr "Altimètre FlyDream - Contrôle de l'appareil"
 
-#: gui/fdaaltimetercontrol.py:39
+#: gui/fdaaltimetercontrol.py:75
 msgid "Altimeter plugged on:"
 msgstr "Altimètre branché sur :"
 
-#: gui/fdaaltimetercontrol.py:41
+#: gui/fdaaltimetercontrol.py:77
 msgid "Refresh"
-msgstr "Rafraîchir"
+msgstr ""
 
-#: gui/fdaaltimetercontrol.py:54
+#: gui/fdaaltimetercontrol.py:83
+msgid "Detecting serial ports..."
+msgstr "Détection des ports série..."
+
+#: gui/fdaaltimetercontrol.py:93
 msgid "Upload"
 msgstr "Téléchargement"
 
-#: gui/fdaaltimetercontrol.py:60
+#: gui/fdaaltimetercontrol.py:118
 msgid "Tell the altimeter to send flight data to your computer"
 msgstr "Demander à l'altimètre d'envoyer les données à votre ordinateur"
 
-#: gui/fdaaltimetercontrol.py:64
+#: gui/fdaaltimetercontrol.py:122
 msgid "Upload data"
 msgstr "Télécharger"
 
-#: gui/fdaaltimetercontrol.py:72
+#: gui/fdaaltimetercontrol.py:130
 msgid "Clear"
 msgstr "Suppression"
 
-#: gui/fdaaltimetercontrol.py:78
+#: gui/fdaaltimetercontrol.py:137
 msgid "Delete all the flight data from your altimeter"
 msgstr "Supprimer toutes les données de vols contenues dans votre altimètre"
 
-#: gui/fdaaltimetercontrol.py:81
+#: gui/fdaaltimetercontrol.py:140
 msgid "Erase data"
 msgstr "Effacer"
 
-#: gui/fdaaltimetercontrol.py:89
+#: gui/fdaaltimetercontrol.py:148
 msgid "Configure"
 msgstr "Configuration"
 
-#: gui/fdaaltimetercontrol.py:99
+#: gui/fdaaltimetercontrol.py:160
 msgid "records per second"
 msgstr "mesures par seconde"
 
-#: gui/fdaaltimetercontrol.py:102
+#: gui/fdaaltimetercontrol.py:163
 msgid "Set sampling frequency"
-msgstr "Changer la fréquence d'échantillonnage"
+msgstr ""
 
-#: gui/fdaaltimetercontrol.py:110
-msgid "Erase flight data"
-msgstr "Effacer les données de vol"
+#: gui/fdaaltimetercontrol.py:181
+msgid "Warning"
+msgstr "Attention"
 
-#: gui/fdaaltimetercontrol.py:111
-msgid "Really erase all flight data in your altimeter?"
-msgstr "Effacer toutes les données de votre altimètre ?"
+#: gui/fdaaltimetercontrol.py:182
+msgid ""
+"The application is communicating with the altimeter.\n"
+"\n"
+"Please wait until communication is finished before closing this window."
+msgstr "L'application et l'altimètre transfèrent des données\n"
+"\n"
+"Veuillez attendre la fin des communications avant de fermer cette fenêtre."
 
-#: gui/fdafileviewer.py:26
-msgid "FlyDream Altimeter - Data Flight Viewer"
-msgstr "FlyDream Altimeter - Visualisation de données de vol"
+#: gui/fdaaltimetercontrol.py:220
+msgid "Please wait, %d bytes read out of %d"
+msgstr "Merci de patienter, %d octets lus sur %d"
 
-#: gui/fdafileviewer.py:44
-msgid "Load file..."
-msgstr "Charger un fichier..."
+#: gui/fdaaltimetercontrol.py:251
+msgid "Upload Data"
+msgstr "Transfert des données"
 
-#: gui/fdafileviewer.py:64
-msgid "Altimeter"
-msgstr "Altimètre"
+#: gui/fdaaltimetercontrol.py:252
+msgid "Altimeter contains no data."
+msgstr "L'altimètre ne contient aucune donnée."
 
-#: gui/fdafileviewer.py:82
+#: gui/fdaaltimetercontrol.py:266 gui/fdafileviewer.py:98
 msgid "Flydream Altimeter Data"
 msgstr "Données de vol FlyDream Altimeter"
 
-#: gui/fdafileviewer.py:83
+#: gui/fdaaltimetercontrol.py:267 gui/fdafileviewer.py:99
 msgid "All files"
 msgstr "Tous les fichiers"
+
+#: gui/fdaaltimetercontrol.py:268
+msgid "Save flight data..."
+msgstr "Enregistrement des données de vol..."
+
+#: gui/fdaaltimetercontrol.py:276
+msgid "Erase flight data"
+msgstr "Effacer les données de vol"
+
+#: gui/fdaaltimetercontrol.py:277
+msgid "Really erase all flight data in your altimeter?"
+msgstr "Vraiment effacer toutes les données de vol de votre altimètre ?"
+
+#: gui/fdaaltimetercontrol.py:340
+msgid "Sampling Frequency"
+msgstr "Fréquence de mesure"
+
+#: gui/fdaaltimetercontrol.py:341
+msgid ""
+"Can not open port: %s\n"
+"\n"
+"Please ensure that:\n"
+" - your altimeter is plugged to the USB adapter.\n"
+" - the USB adapter is plugged to your computer.\n"
+" - the choosen port is correct.\n"
+" - the USB adapter driver is properly installed on your computer, see\n"
+"   http://www.silabs.com/products/mcu/pages/usbtouartbridgevcpdrivers.aspx"
+msgstr ""
+"Impossible d'ouvrir le port %s\n"
+"\n"
+"Veuillez vous assurer que :\n"
+" - votre altimètre est branché à l'adapteur USB.\n"
+" - L'adapteur USB est connecté sur votre ordinateur.\n"
+" - Le port sélectionné est correct.\n"
+" - Le pilote de l'adapteur USB est correctement installé sur votre ordinateur, consultez\n"
+"   http://www.silabs.com/products/mcu/pages/usbtouartbridgevcpdrivers.aspx"
+
+#: gui/fdaaltimetercontrol.py:352
+msgid "Read/Write error"
+msgstr "Erreur de lecture/écriture"
+
+#: gui/fdaaltimetercontrol.py:353
+msgid ""
+"With device on: %s\n"
+"\n"
+"Internal error message: %s\n"
+"\n"
+"Please ensure that:\n"
+" - the choosen port is correct.\n"
+" - your altimeter is plugged to the USB adapter.\n"
+" - the USB adapter is plugged to your computer.\n"
+" - you did not unplugged the altimeter while it was communicating."
+msgstr ""
+"Avec l'altimètre sur %s\n"
+"\n"
+"Message d'erreur interne : %s\n"
+"\n"
+"Veuillez vous assurer que :\n"
+" - Le port sélectionné est correct.\n"
+" - votre altimètre est branché à l'adapteur USB.\n"
+" - L'adapteur USB est connecté sur votre ordinateur.\n"
+" - Vous n'avez pas débranché l'altimètre pendant le transfert des données."
+
+#: gui/fdaaltimetercontrol.py:365
+msgid "Protocol error"
+msgstr "Erreur de protocole"
+
+#: gui/fdaaltimetercontrol.py:366
+msgid ""
+"With device on: %s\n"
+"\n"
+"Internal error message: %s\n"
+"\n"
+"Please ensure that:\n"
+" - your altimeter is plugged to the USB adapter.\n"
+" - you did not unplugged the altimeter while it was communicating."
+msgstr ""
+"Avec l'altimètre sur %s\n"
+"\n"
+"Message d'erreur interne : %s\n"
+"\n"
+"Veuillez vous assurer que :\n"
+" - votre altimètre est branché à l'adapteur USB.\n"
+" - Vous n'avez pas débranché l'altimètre pendant le transfert des données."
+
+#: gui/fdafileviewer.py:21 gui/fdafileviewer.py:38
+msgid "FlyDream Altimeter - Data Flight Viewer"
+msgstr "FlyDream Altimeter - Visualisation de données de vol"
+
+#: gui/fdafileviewer.py:22
+msgid ""
+"This application requires Python 2.7.\n"
+"\n"
+"Detected on your system: Python %d.%d"
+msgstr ""
+"Cette application requiert Python 2.7.\n"
+"\n"
+"Détecté sur votre système : Python %d.%d"
+
+#: gui/fdafileviewer.py:56
+msgid "Load file..."
+msgstr "Charger un fichier..."
+
+#: gui/fdafileviewer.py:69
+msgid "Altimeter"
+msgstr "Altimètre"
+
+#: gui/fdafileviewer.py:74
+msgid "Zoom:"
+msgstr "Zoom :"
 
 #: gui/fdaflightview.py:50
 msgid "- Pointer at %.3f secs: %.1f \302\260C and %.1f m"
