@@ -22,6 +22,8 @@ USB to UART driver:
 * http://pyserial.sourceforge.net/
 * http://www.silabs.com/products/mcu/pages/usbtouartbridgevcpdrivers.aspx
 
+PySerial is embedded in Mac OS X bundle installer.
+
 ToDo
 ----
 
@@ -32,7 +34,6 @@ In no particular order, I would like to:
 * Write a user manual for CLI tool
 * Port to Python 3
 * Test on Linux and Windows, with both Python 2 and 3
-* Generate a nice Mac application bundle
 * Add missing features in GUI
 * Publish on PyPI?
 
