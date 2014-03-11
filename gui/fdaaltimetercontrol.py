@@ -249,6 +249,8 @@ Please wait until communication is finished before closing this window."""))
                         _(u'Altimeter contains no data.'))
             else:
                 self.write_flight_data(raw_data)
+
+            # TODO Suggest to open upload result in FileViewer
         finally:
             # Restore window state.
             self.communicating = False
@@ -256,7 +258,7 @@ Please wait until communication is finished before closing this window."""))
             self.hide_progressbar()
 
         # TODO Update altimeter information.
-        self.upload_info.set('Done')
+        self.upload_info.set(_(u'Done'))
 
     def write_flight_data(self, raw_data):
         fname = tkFileDialog.asksaveasfilename(
@@ -277,9 +279,9 @@ Please wait until communication is finished before closing this window."""))
 
     def do_erase(self):
         # TODO Make message stay while erasing is performed.
-        tkMessageBox.showwarning('Erasing...',
-                'Do not disconnect USB until altimeter blue LED '
-                'lights again.')
+        tkMessageBox.showwarning(_(u'Erasing...'),
+                _(u'Do not disconnect USB until altimeter blue LED '
+                'lights again.'))
 
         # Update window state.
         self.allow_user_interactions(False)
@@ -298,7 +300,7 @@ Please wait until communication is finished before closing this window."""))
             self.show_protocol_error(port, e.message)
         else:
             # Update altimeter information.
-            self.upload_info.set('Altimeter content erased')
+            self.upload_info.set(_(u'Altimeter content erased'))
         finally:
             # Restore window state.
             self.communicating = False
@@ -327,7 +329,7 @@ Please wait until communication is finished before closing this window."""))
             self.show_protocol_error(port, e.message)
         else:
             # Update altimeter information.
-            self.upload_info.set('Altimeter sampling frequency set')
+            self.upload_info.set(_(u'Altimeter sampling frequency set'))
         finally:
             # Restore window state.
             self.communicating = False
@@ -390,8 +392,8 @@ Please ensure that:
             port_list = [info[0].replace('cu', 'tty')
                     for info in list_ports.comports()]
         except Exception as e:
-            tkMessageBox.showwarning('Serial Ports Detection',
-                    'Error while detecting serial ports: %s' % e.message)
+            tkMessageBox.showwarning(_(u'Serial Ports Detection'),
+                    _(u'Error while detecting serial ports: %s') % e.message)
 
         # Insert default port as first entry.
         default = Altimeter().port

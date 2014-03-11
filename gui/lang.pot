@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2014-03-11 16:11+CET\n"
+"POT-Creation-Date: 2014-03-11 16:35+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -90,31 +90,51 @@ msgstr ""
 msgid "Altimeter contains no data."
 msgstr ""
 
-#: gui/fdaaltimetercontrol.py:266 gui/fdafileviewer.py:98
+#: gui/fdaaltimetercontrol.py:264
+msgid "Done"
+msgstr ""
+
+#: gui/fdaaltimetercontrol.py:268 gui/fdafileviewer.py:98
 msgid "Flydream Altimeter Data"
 msgstr ""
 
-#: gui/fdaaltimetercontrol.py:267 gui/fdafileviewer.py:99
+#: gui/fdaaltimetercontrol.py:269 gui/fdafileviewer.py:99
 msgid "All files"
 msgstr ""
 
-#: gui/fdaaltimetercontrol.py:268
+#: gui/fdaaltimetercontrol.py:270
 msgid "Save flight data..."
 msgstr ""
 
-#: gui/fdaaltimetercontrol.py:276
+#: gui/fdaaltimetercontrol.py:278
 msgid "Erase flight data"
 msgstr ""
 
-#: gui/fdaaltimetercontrol.py:277
+#: gui/fdaaltimetercontrol.py:279
 msgid "Really erase all flight data in your altimeter?"
 msgstr ""
 
-#: gui/fdaaltimetercontrol.py:340
+#: gui/fdaaltimetercontrol.py:285
+msgid "Erasing..."
+msgstr ""
+
+#: gui/fdaaltimetercontrol.py:286
+msgid "Do not disconnect USB until altimeter blue LED lights again."
+msgstr ""
+
+#: gui/fdaaltimetercontrol.py:306
+msgid "Altimeter content erased"
+msgstr ""
+
+#: gui/fdaaltimetercontrol.py:335
+msgid "Altimeter sampling frequency set"
+msgstr ""
+
+#: gui/fdaaltimetercontrol.py:342
 msgid "Sampling Frequency"
 msgstr ""
 
-#: gui/fdaaltimetercontrol.py:341
+#: gui/fdaaltimetercontrol.py:343
 msgid ""
 "Can not open port: %s\n"
 "\n"
@@ -126,11 +146,11 @@ msgid ""
 "   http://www.silabs.com/products/mcu/pages/usbtouartbridgevcpdrivers.aspx"
 msgstr ""
 
-#: gui/fdaaltimetercontrol.py:352
+#: gui/fdaaltimetercontrol.py:354
 msgid "Read/Write error"
 msgstr ""
 
-#: gui/fdaaltimetercontrol.py:353
+#: gui/fdaaltimetercontrol.py:355
 msgid ""
 "With device on: %s\n"
 "\n"
@@ -143,11 +163,11 @@ msgid ""
 " - you did not unplugged the altimeter while it was communicating."
 msgstr ""
 
-#: gui/fdaaltimetercontrol.py:365
+#: gui/fdaaltimetercontrol.py:367
 msgid "Protocol error"
 msgstr ""
 
-#: gui/fdaaltimetercontrol.py:366
+#: gui/fdaaltimetercontrol.py:368
 msgid ""
 "With device on: %s\n"
 "\n"
@@ -156,6 +176,14 @@ msgid ""
 "Please ensure that:\n"
 " - your altimeter is plugged to the USB adapter.\n"
 " - you did not unplugged the altimeter while it was communicating."
+msgstr ""
+
+#: gui/fdaaltimetercontrol.py:398
+msgid "Serial Ports Detection"
+msgstr ""
+
+#: gui/fdaaltimetercontrol.py:399
+msgid "Error while detecting serial ports: %s"
 msgstr ""
 
 #: gui/fdafileviewer.py:21 gui/fdafileviewer.py:38
