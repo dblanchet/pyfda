@@ -105,6 +105,7 @@ macos_bundle:
 	cp -r gui $(BUNDLE_NAME).app/Contents/MacOS/
 
 	cp res/macos/PyFda.icns $(BUNDLE_NAME).app/Contents/Resources/
+	cp res/macos/PyFdaFile.icns $(BUNDLE_NAME).app/Contents/Resources/
 
 macos_dmg: macos_bundle $(MASTER_DMG)
 
