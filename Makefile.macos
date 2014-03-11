@@ -103,6 +103,7 @@ macos_bundle:
 
 	cp -r flydream $(BUNDLE_NAME).app/Contents/MacOS/
 	cp -r gui $(BUNDLE_NAME).app/Contents/MacOS/
+	cp -r deps/pyserial $(BUNDLE_NAME).app/Contents/MacOS/
 
 	cp res/macos/PyFda.icns $(BUNDLE_NAME).app/Contents/Resources/
 	cp res/macos/PyFdaFile.icns $(BUNDLE_NAME).app/Contents/Resources/
