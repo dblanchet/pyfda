@@ -78,7 +78,7 @@ class FdaAltimeterControl(tk.Toplevel):
         self.port = tk.StringVar(self)
         self.ports = tk.OptionMenu(frame, self.port,
                 _(u'Detecting serial ports...'))
-        self.ports.pack(fill=tk.BOTH, expand=1)
+        self.ports.pack(fill=tk.X, expand=tk.YES)
 
         # Update possible serial ports.
         self.refresh_serial_ports()
