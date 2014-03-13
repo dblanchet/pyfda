@@ -39,7 +39,7 @@ class FdaFileViewer(tk.Tk):
 
         # Set minimal size
         self.minsize(480, 240)
-        self.resizable(True, False)
+        self.resizable(True, True)
 
         # Prevent first column and last row to resize.
         self.grid_columnconfigure(0, weight=0)
