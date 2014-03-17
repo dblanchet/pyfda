@@ -1,16 +1,39 @@
 # -+- encoding: utf-8 -+-
 
-import Tkinter as tk
+try:
+    import Tkinter as tk
+except ImportError:
+    import tkinter as tk
 
-import tkMessageBox
-import tkFileDialog
-import tkFont
-from ttk import Progressbar
+try:
+    from tkMessageBox import showwarning, showinfo, askokcancel
+except ImportError:
+    from tkinter.messagebox import showwarning, showinfo, askokcancel
+
+try:
+    from tkFileDialog import askopenfilename, asksaveasfilename
+except ImportError:
+    from tkinter.filedialog import askopenfilename, asksaveasfilename
+
+try:
+    from tkFont import Font
+except ImportError:
+    from tkinter.font import Font
+
+try:
+    from ttk import Progressbar
+except ImportError:
+    from tkinter.ttk import Progressbar
+
 
 import time
 
 import gettext
-_ = gettext.translation('messages', 'gui', fallback=True).ugettext
+translations = gettext.translation('messages', 'gui', fallback=True)
+try:
+    _ = translations.ugettext
+except AttributeError:
+    _ = translations.gettext
 
 try:
     from serial.tools import list_ports
@@ -18,7 +41,7 @@ except ImportError:
     try:
         from pyserial.tools import list_ports
     except ImportError:
-        tkMessageBox.showwarning('Altimeter interaction',
+        showwarning('Altimeter interaction',
                 'Its appears that "pyserial" Python module is not available'
                 ' on your system. This module is required to interact with '
                 'your altimeter.\n\n'
@@ -91,7 +114,7 @@ class FdaAltimeterControl(tk.Toplevel):
         label.pack(side=tk.TOP, fill=tk.X)
 
         # Setup bold font for titles.
-        f = tkFont.Font(font=label['font'])
+        f = Font(font=label['font'])
         f['weight'] = 'bold'
         label['font'] = f.name
 
@@ -175,7 +198,7 @@ class FdaAltimeterControl(tk.Toplevel):
             self.destroy()
             return
         else:
-            tkMessageBox.showwarning(_(u'Warning'),
+            showwarning(_(u'Warning'),
                     _(u"""The application is communicating with the altimeter.
 
 Please wait until communication is finished before closing this window."""))
@@ -245,7 +268,7 @@ Please wait until communication is finished before closing this window."""))
         else:
             # Check received data.
             if len(raw_data.data) == 0:
-                tkMessageBox.showinfo(_(u'Upload Data'),
+                showinfo(_(u'Upload Data'),
                         _(u'Altimeter contains no data.'))
             else:
                 self.write_flight_data(raw_data)
@@ -261,7 +284,7 @@ Please wait until communication is finished before closing this window."""))
         self.upload_info.set(_(u'Done'))
 
     def write_flight_data(self, raw_data):
-        fname = tkFileDialog.asksaveasfilename(
+        fname = asksaveasfilename(
                     filetypes=((_(u'Flydream Altimeter Data'), '*.fda'),
                                (_(u'All files'), '*.*')),
                     title=_(u'Save flight data...'),
@@ -272,14 +295,14 @@ Please wait until communication is finished before closing this window."""))
             raw_data.to_file(fname)
 
     def erase(self):
-        reply = tkMessageBox.askokcancel(_(u'Erase flight data'),
+        reply = askokcancel(_(u'Erase flight data'),
                 _(u'Really erase all flight data in your altimeter?'))
         if reply:
             self.do_erase()
 
     def do_erase(self):
         # TODO Make message stay while erasing is performed.
-        tkMessageBox.showwarning(_(u'Erasing...'),
+        showwarning(_(u'Erasing...'),
                 _(u'Do not disconnect USB until altimeter blue LED '
                 'lights again.'))
 
@@ -336,7 +359,7 @@ Please wait until communication is finished before closing this window."""))
             self.allow_user_interactions()
 
     def show_unfound_altimeter(self, port):
-        tkMessageBox.showwarning(_(u'Sampling Frequency'),
+        showwarning(_(u'Sampling Frequency'),
                     _(u"""Can not open port: %s
 
 Please ensure that:
@@ -348,7 +371,7 @@ Please ensure that:
                     % port)
 
     def show_readwrite_error(self, port, message):
-        tkMessageBox.showwarning(_(u'Read/Write error'),
+        showwarning(_(u'Read/Write error'),
                     _(u"""With device on: %s
 
 Internal error message: %s
@@ -361,7 +384,7 @@ Please ensure that:
                     % (port, message))
 
     def show_protocol_error(self, port, message):
-        tkMessageBox.showwarning(_(u'Protocol error'),
+        showwarning(_(u'Protocol error'),
                     _(u"""With device on: %s
 
 Internal error message: %s
@@ -392,7 +415,7 @@ Please ensure that:
             port_list = [info[0].replace('cu', 'tty')
                     for info in list_ports.comports()]
         except Exception as e:
-            tkMessageBox.showwarning(_(u'Serial Ports Detection'),
+            showwarning(_(u'Serial Ports Detection'),
                     _(u'Error while detecting serial ports: %s') % e.message)
 
         # Insert default port as first entry.

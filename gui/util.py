@@ -1,5 +1,9 @@
 import gettext
-_ = gettext.translation('messages', 'gui', fallback=True).ugettext
+translations = gettext.translation('messages', 'gui', fallback=True)
+try:
+    _ = translations.ugettext
+except AttributeError:
+    _ = translations.gettext
 
 
 def flight_description(flight):

@@ -1,8 +1,14 @@
 # -+- encoding: utf-8 -+-
 
-import Tkinter as tk
-from tkFileDialog import askopenfilename
+try:
+    import Tkinter as tk
+except ImportError:
+    import tkinter as tk
 
+try:
+    from tkFileDialog import askopenfilename
+except ImportError:
+    from tkinter.filedialog import askopenfilename
 
 from gui.fdaflightlist import FdaFlightList
 from gui.fdaflightview import FdaFlightView
@@ -11,7 +17,11 @@ from gui.fdaflightviewdatasource import FdaFlightViewDataSource
 from gui.fdaaltimetercontrol import FdaAltimeterControl
 
 import gettext
-_ = gettext.translation('messages', 'gui', fallback=True).ugettext
+translations = gettext.translation('messages', 'gui', fallback=True)
+try:
+    _ = translations.ugettext
+except AttributeError:
+    _ = translations.gettext
 
 
 # Check Python interpreter version.

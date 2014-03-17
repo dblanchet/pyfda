@@ -1,4 +1,7 @@
-import Tkinter as tk
+try:
+    import Tkinter as tk
+except ImportError:
+    import tkinter as tk
 
 from flydream.uploadeddata import UploadedData
 from flydream.dataparser import DataParser
