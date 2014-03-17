@@ -1,7 +1,7 @@
 
 import os
 
-from . import serialprotocol as sp
+from flydream import serialprotocol as sp
 
 
 class UploadedData:

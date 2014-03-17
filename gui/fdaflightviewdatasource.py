@@ -1,6 +1,6 @@
 
-from util import flight_description
-from smoothcurve import gaussian_filter, get_window_weights
+from gui.util import flight_description
+from gui.smoothcurve import gaussian_filter, get_window_weights
 
 
 class FdaFlightViewDataSource:

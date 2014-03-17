@@ -3,9 +3,11 @@
 import struct
 import StringIO
 
-from .exception import FlyDreamAltimeterProtocolError
 
-from . import serialprotocol as sp
+
+from flydream.exception import FlyDreamAltimeterProtocolError
+
+from flydream import serialprotocol as sp
 
 from collections import namedtuple
 RawFlight = namedtuple('RawFlight', 'sampling_rate, data')

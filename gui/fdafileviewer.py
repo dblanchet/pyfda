@@ -3,11 +3,12 @@
 import Tkinter as tk
 from tkFileDialog import askopenfilename
 
-from fdaflightlist import FdaFlightList
-from fdaflightview import FdaFlightView
-from fdaflightviewdatasource import FdaFlightViewDataSource
 
-from fdaaltimetercontrol import FdaAltimeterControl
+from gui.fdaflightlist import FdaFlightList
+from gui.fdaflightview import FdaFlightView
+from gui.fdaflightviewdatasource import FdaFlightViewDataSource
+
+from gui.fdaaltimetercontrol import FdaAltimeterControl
 
 import gettext
 _ = gettext.translation('messages', 'gui', fallback=True).ugettext

@@ -1,7 +1,7 @@
 import platform
 
-import serialprotocol as sp
-from serialdevice import SerialDevice
+import flydream.serialprotocol as sp
+from flydream.serialdevice import SerialDevice
 
 
 class Altimeter:

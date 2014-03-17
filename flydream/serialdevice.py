@@ -11,15 +11,15 @@ Please visit http://pyserial.sourceforge.net/pyserial.html#installation''')
 
 from contextlib import contextmanager
 
-from .exception import FlyDreamAltimeterReadError, \
+from flydream.exception import FlyDreamAltimeterReadError, \
         FlyDreamAltimeterWriteError, \
         FlyDreamAltimeterSerialPortError, \
         FlyDreamAltimeterProtocolError
 
-import serialprotocol as sp
+import flydream.serialprotocol as sp
 
-from dataparser import DataParser
-from uploadeddata import UploadedData
+from flydream.dataparser import DataParser
+from flydream.uploadeddata import UploadedData
 
 
 class SerialDevice:

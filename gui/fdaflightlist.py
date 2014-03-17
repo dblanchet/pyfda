@@ -3,7 +3,7 @@ import Tkinter as tk
 from flydream.uploadeddata import UploadedData
 from flydream.dataparser import DataParser
 
-from util import flight_description
+from gui.util import flight_description
 
 
 class FdaFlightList(tk.Listbox):
