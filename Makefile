@@ -5,11 +5,13 @@ GETTEXT = ~/Downloads/pygettext.py
 langtemplate:
 	$(GETTEXT) -o gui/lang.pot gui/*.py
 
-test:
-	python -m unittest discover
+test: test2 test3
 
-vtest:
-	python -m unittest discover -v
+test2:
+	python2 -m unittest discover
+
+test3:
+	python3 -m unittest discover
 
 cov coverage:
 	coverage run --omit=*/site-packages/*,test* -m unittest discover
