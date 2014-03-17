@@ -20,59 +20,59 @@ class TestFlyDreamDataParser(unittest.TestCase):
         self._parser = None
 
     def test_parse_header_too_short(self):
-        valid_header = '\x07\x0F\xDA\x10\x00\xCA\x03\x00\x00\x02\x07\x00'
+        valid_header = b'\x07\x0F\xDA\x10\x00\xCA\x03\x00\x00\x02\x07\x00'
         with self.assertRaises(FlyDreamAltimeterProtocolError):
             self._parser.parse_header(valid_header[:-1])
 
     def test_parse_header_too_long(self):
-        valid_header = '\x07\x0F\xDA\x10\x00\xCA\x03\x00\x00\x02\x07\x00'
+        valid_header = b'\x07\x0F\xDA\x10\x00\xCA\x03\x00\x00\x02\x07\x00'
         with self.assertRaises(FlyDreamAltimeterProtocolError):
-            self._parser.parse_header(valid_header + 'a')
+            self._parser.parse_header(valid_header + b'a')
 
     def test_parse_header_invalid(self):
-        invalid_magic_seq = '\x07\x0E\xDA\x10\x00\xCA\x03\x00\x00\x02\x07\x00'
-        #    Should be \x0f here ^
+        invalid_magic_seq = b'\x07\x0E\xDA\x10\x00\xCA\x03\x00\x00\x02\x07\x00'
+        #     Should be \x0f here ^
         with self.assertRaises(FlyDreamAltimeterProtocolError):
             self._parser.parse_header(invalid_magic_seq)
 
     def test_parse_header_negative_data_size(self):
-        negative_data_size = '\x07\x0F\xDA\x10\x00\xCA\x03\x00\x00\x01\x07\x00'
-        #                                     Should be \x02 here ^
+        negative_data_size = b'\x07\x0F\xDA\x10\x00\xCA\x03\x00\x00\x01\x07\x00'
+        #                                      Should be \x02 here ^
         with self.assertRaises(FlyDreamAltimeterProtocolError):
             self._parser.parse_header(negative_data_size)
 
     def test_parse_header_too_much_data_a_lot(self):
-        max_data_size = '\x07\x0F\xDA\x10\x00\xCA\x03\x00\xFF\xFF\xFF\xFF'
-        #                                         Max is \x00\x10\x00\x00
+        max_data_size = b'\x07\x0F\xDA\x10\x00\xCA\x03\x00\xFF\xFF\xFF\xFF'
+        #                                          Max is \x00\x10\x00\x00
         with self.assertRaises(FlyDreamAltimeterProtocolError):
             self._parser.parse_header(max_data_size)
 
     def test_parse_header_too_much_data_little_bit(self):
-        max_data_size = '\x07\x0F\xDA\x10\x00\xCA\x03\x00\x00\x10\x00\x01'
-        #                                         Max is \x00\x10\x00\x00
+        max_data_size = b'\x07\x0F\xDA\x10\x00\xCA\x03\x00\x00\x10\x00\x01'
+        #                                          Max is \x00\x10\x00\x00
         with self.assertRaises(FlyDreamAltimeterProtocolError):
             self._parser.parse_header(max_data_size)
 
     def test_parse_header_empty_device(self):
-        header = '\x07\x0F\xDA\x10\x00\xCA\x03\x00\x00\x02\x00\x00'
+        header = b'\x07\x0F\xDA\x10\x00\xCA\x03\x00\x00\x02\x00\x00'
         size, total = self._parser.parse_header(header)
         self.assertEqual(size, 0, 'Incorrect data size')
         self.assertEqual(total, self.max_size, 'Incorrect max data size')
 
     def test_parse_header_arbitrary(self):
-        header = '\x07\x0F\xDA\x10\x00\xCA\x03\x00\x00\x02\x07\x00'
+        header = b'\x07\x0F\xDA\x10\x00\xCA\x03\x00\x00\x02\x07\x00'
         size, total = self._parser.parse_header(header)
         self.assertEqual(size, 0x700, 'Incorrect data size')
         self.assertEqual(total, self.max_size, 'Incorrect max data size')
 
     def test_parse_header_full(self):
-        header = '\x07\x0F\xDA\x10\x00\xCA\x03\x00\x00\x10\x00\x00'
+        header = b'\x07\x0F\xDA\x10\x00\xCA\x03\x00\x00\x10\x00\x00'
         size, total = self._parser.parse_header(header)
         self.assertEqual(size, self.max_size, 'Incorrect data size')
         self.assertEqual(total, self.max_size, 'Incorrect max data size')
 
     def test_raw_split_raw_flight_empty(self):
-        result = self._parser._split_raw_flight('')
+        result = self._parser._split_raw_flight(b'')
         self.assertEqual(0, len(result), 'Incorrect flight count')
 
     def test_raw_split_raw_flight_single(self):
@@ -82,7 +82,7 @@ class TestFlyDreamDataParser(unittest.TestCase):
         self.assertEqual(1, len(result), 'Incorrect flight count')
 
         flight, = result
-        self.assertEqual('\x03', flight.sampling_rate)  # 8 hertz sampling.
+        self.assertEqual(b'\x03', flight.sampling_rate)  # 8 hertz sampling.
         self.assertTrue(len(flight.data) > 0, 'Empty data')
 
     def test_raw_split_raw_flight_several(self):
@@ -93,16 +93,16 @@ class TestFlyDreamDataParser(unittest.TestCase):
         self.assertEqual(2, len(result), 'Incorrect flight count')
         first, second = result
 
-        self.assertEqual('\x03', first.sampling_rate)  # 8 hertz sampling.
+        self.assertEqual(b'\x03', first.sampling_rate)  # 8 hertz sampling.
         self.assertTrue(len(first.data) > 0, 'Empty data')
         self.assertEqual(440 * 4, len(first.data), 'Incorrect data length')
 
-        self.assertEqual('\x03', second.sampling_rate)  # 8 hertz sampling.
+        self.assertEqual(b'\x03', second.sampling_rate)  # 8 hertz sampling.
         self.assertTrue(len(second.data) > 0, 'Empty data')
         self.assertEqual(32, len(second.data), 'Incorrect data length')
 
     def test_convert_raw_flight_empty(self):
-        flight = RawFlight('\x00', '')
+        flight = RawFlight(b'\x00', b'')
         result = self._parser._convert_raw_flight(flight,
                 0,
                 DataParser.LENGTH_UNIT_METER,

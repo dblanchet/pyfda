@@ -116,7 +116,7 @@ class SerialDevice:
         data_size, _ = DataParser().parse_header(header)
 
         # 2. Next read the flight data.
-        data = ''
+        data = b''
         remaining = data_size
         while remaining > 0:
             # Read some data.

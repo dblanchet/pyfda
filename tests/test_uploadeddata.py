@@ -16,7 +16,7 @@ class FlyDreamUploadedData(unittest.TestCase):
         header = result.header
         self.assertEqual(len(header), sp.RAW_DATA_HEADER_LENGTH,
                 'Invalid header length')
-        expected_value = sp.RESPONSE_UPLOAD + '\x00\x02\x07\x00'
+        expected_value = sp.RESPONSE_UPLOAD + b'\x00\x02\x07\x00'
         self.assertEqual(header, expected_value, 'Incorrect header')
 
         data = result.data

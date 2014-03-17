@@ -1,8 +1,11 @@
 # vim:nosi:
 
 import struct
-import StringIO
 
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import BytesIO as StringIO
 
 
 from flydream.exception import FlyDreamAltimeterProtocolError
@@ -87,7 +90,7 @@ class DataParser:
         #
         # Ignore first byte, as it value does not
         # seem to be always compliant with specifications.
-        return RawFlight(flight_data_chunck[1], flight_data_chunck[2:])
+        return RawFlight(flight_data_chunck[1:2], flight_data_chunck[2:])
 
     def _split_raw_flight(self, data):
         chunks = data.split(sp.RAW_FLIGHTS_SEPARATOR)
@@ -122,7 +125,7 @@ class DataParser:
 
         # Convert each 4 bytes records.
         rel_time = 0.0
-        data_stream = StringIO.StringIO(raw_flight.data)
+        data_stream = StringIO(raw_flight.data)
         records = []
         while True:
             # Parse data.
@@ -130,7 +133,7 @@ class DataParser:
                 record = data_stream.read(4)
 
                 # The first byte is the temperature in celsius degrees.
-                temp_info, = struct.unpack('b', record[0])
+                temp_info, = struct.unpack('b', record[:1])
 
                 # The 3 last bytes are the pressure in Pascal.
                 raw_pressure, = struct.unpack('>I', record)

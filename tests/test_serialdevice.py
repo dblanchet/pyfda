@@ -2,7 +2,10 @@
 
 import unittest
 
-import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import BytesIO as StringIO
 
 from flydream.serialdevice import SerialDevice
 from flydream.exception import FlyDreamAltimeterReadError, \
@@ -18,8 +21,8 @@ UNEXISTING_PORT = 'unexisting'
 class SerialMock:
 
     def __init__(self, content, write_len=None):
-        self._readBuf = StringIO.StringIO(content)
-        self._writeBuf = ''
+        self._readBuf = StringIO(content)
+        self._writeBuf = b''
 
         self.write_len = write_len
 
@@ -46,7 +49,7 @@ class SerialMock:
 class SerialDeviceMock(SerialDevice):
 
     def _open(self):
-        self._serial_port = SerialMock('')
+        self._serial_port = SerialMock(b'')
         self._serial_port.open()
 
 
@@ -137,7 +140,7 @@ class TestFlyDreamDevice(unittest.TestCase):
         self.assertEqual(serialMock.received(), expectedWrite)
 
     def test_setup_invalid_argument(self):
-        serialMock = SerialMock('')
+        serialMock = SerialMock(b'')
         self._device._serial_port = serialMock
 
         with self.assertRaises(ValueError):
