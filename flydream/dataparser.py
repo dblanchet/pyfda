@@ -132,6 +132,14 @@ class DataParser:
             try:
                 record = data_stream.read(4)
 
+                # Break loop if data is not available.
+                #
+                # This same exception may come later
+                # from struct in Python 2 but Python 3
+                # triggers a different error.
+                if len(record) < 4:
+                    raise IndexError
+
                 # The first byte is the temperature in celsius degrees.
                 temp_info, = struct.unpack('b', record[:1])
 
