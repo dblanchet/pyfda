@@ -25,8 +25,10 @@ class FdaFlightViewDataSource:
                 full_alt,
                 get_window_weights(self.GAUSSIAN_WINDOW_WIDTH))
 
-        self.full_data = zip(full_time_values, full_temp,
-                full_alt, full_soft_alt)
+        # Create a list, because zip returns a
+        # iterator in Python 3.
+        self.full_data = list(zip(full_time_values, full_temp,
+                full_alt, full_soft_alt))
 
         self.compute_extrema()
 

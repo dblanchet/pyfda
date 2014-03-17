@@ -542,10 +542,12 @@ class FdaFlightView(tk.Canvas):
 
     def distribute_labels(self, alt, soft, temp, min_y, max_y, label_height):
         # Order values per vertical positions.
+        #
+        # list(zip(()) because Python3's zip returns a generator.
         y_offset = 1.0 * label_height / 2
-        l = zip((alt + y_offset, soft + y_offset, temp + y_offset), range(3))
+        l = list(zip((alt + y_offset, soft + y_offset, temp + y_offset), range(3)))
         l.sort(key=lambda x: x[0])
-        r = zip(*l)
+        r = list(zip(*l))
         order = r[1]
         y0, y1, y2 = r[0]
 
@@ -580,9 +582,11 @@ class FdaFlightView(tk.Canvas):
                     y0 = y1 - label_height
 
         # Restore expected order.
-        l = zip((y0, y1, y2), order)
+        #
+        # list(zip(()) because Python3's zip returns a generator.
+        l = list(zip((y0, y1, y2), order))
         l.sort(key=lambda x: x[1])
-        return zip(*l)[0]
+        return list(zip(*l))[0]
 
     def remove_mouse_info(self):
         try:
