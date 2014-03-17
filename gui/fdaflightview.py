@@ -267,9 +267,11 @@ class FdaFlightView(tk.Canvas):
             val_result = min_val
             px_result = px_width / (val_width / val_result)
 
-            scale_factor = itertools.cycle([2.0, 2.5, 2.0])
-            while px_result <= min_px:
-                val_result *= scale_factor.next()
+            scale_factor = itertools.cycle((2.0, 2.5, 2.0))
+            for scale in scale_factor:
+                if px_result > min_px:
+                    break
+                val_result *= scale
                 px_result = px_width / (val_width / val_result)
 
             return val_result, px_result
