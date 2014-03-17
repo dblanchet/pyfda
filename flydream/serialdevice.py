@@ -46,6 +46,9 @@ class SerialDevice:
                     self._port,
                     baudrate=self._baudrate,
                     timeout=self.READ_TIMEOUT)
+        except serial.SerialException:
+            raise FlyDreamAltimeterSerialPortError(
+                    'Could not open serial port %s' % self._port)
         except OSError:
             raise FlyDreamAltimeterSerialPortError(
                     'Could not open serial port %s' % self._port)
