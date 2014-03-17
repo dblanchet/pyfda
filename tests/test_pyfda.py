@@ -43,7 +43,7 @@ class TestPyfdaCommandLineTool(TestCase):
         self.assertEqual(result.returncode, 1,\
                 'Expect returncode=1, got %r' % result.returncode)
         expected = 'error: Missing --frequency argument with command: setup\n'
-        self.assertEquals(result.stderr, expected, 'Incorrect error message')
+        self.assertEqual(result.stderr, expected, 'Incorrect error message')
 
     def test_info_missing_fda_file(self):
         'Test: pyfda info'
@@ -54,7 +54,7 @@ class TestPyfdaCommandLineTool(TestCase):
         self.assertEqual(result.returncode, 1,\
                 'Expect returncode=1, got %r' % result.returncode)
         expected = 'error: Missing fda_file argument with command: info\n'
-        self.assertEquals(result.stderr, expected, 'Incorrect error message')
+        self.assertEqual(result.stderr, expected, 'Incorrect error message')
 
     def test_convert_missing_fda_file(self):
         'Test: pyfda convert'
@@ -65,7 +65,7 @@ class TestPyfdaCommandLineTool(TestCase):
         self.assertEqual(result.returncode, 1,\
                 'Expect returncode=1, got %r' % result.returncode)
         expected = 'error: Missing fda_file argument with command: convert\n'
-        self.assertEquals(result.stderr, expected, 'Incorrect error message')
+        self.assertEqual(result.stderr, expected, 'Incorrect error message')
 
     def test_convert_too_much_temperature_arguments(self):
         'Test: pyfda convert file.fda --celsius --fahrenheit'
@@ -77,7 +77,7 @@ class TestPyfdaCommandLineTool(TestCase):
                 'Expect returncode=1, got %r' % result.returncode)
         expected = 'error: --celsius and --fahrenheit can not ' \
                 'be both specified.\n'
-        self.assertEquals(result.stderr, expected, 'Incorrect error message')
+        self.assertEqual(result.stderr, expected, 'Incorrect error message')
 
     def test_convert_too_much_length_arguments(self):
         'Test: pyfda convert file.fda --feet --meters'
@@ -88,7 +88,7 @@ class TestPyfdaCommandLineTool(TestCase):
         self.assertEqual(result.returncode, 1,\
                 'Expect returncode=1, got %r' % result.returncode)
         expected = 'error: --meters and --feet can not be both specified.\n'
-        self.assertEquals(result.stderr, expected, 'Incorrect error message')
+        self.assertEqual(result.stderr, expected, 'Incorrect error message')
 
     def test_convert_incorrect_last_negative_value(self):
         'Test: pyfda convert file.fda --last -1'
@@ -99,7 +99,7 @@ class TestPyfdaCommandLineTool(TestCase):
         self.assertEqual(result.returncode, 1,\
                 'Expect returncode=1, got %r' % result.returncode)
         expected = 'error: --last argument must be positive.\n'
-        self.assertEquals(result.stderr, expected, 'Incorrect error message')
+        self.assertEqual(result.stderr, expected, 'Incorrect error message')
 
     def test_convert_incorrect_last_non_integer_value(self):
         'Test: pyfda convert file.fda --last toto'
