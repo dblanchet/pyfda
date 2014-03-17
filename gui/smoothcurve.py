@@ -12,7 +12,7 @@ def get_window_weights(N):
 
 
 def apply_filter(index, array, window):
-    N = (len(window) - 1) / 2
+    N = (len(window) - 1) // 2
     # Fix out of range exception.
     array_l = [array[0] for i in range(N)] \
                 + array \
