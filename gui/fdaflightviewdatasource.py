@@ -38,8 +38,8 @@ class FdaFlightViewDataSource:
     def compute_extrema(self):
 
         # http://stackoverflow.com/a/4002806
-        _, temp_max, alt_max, _ = map(max, zip(*self.full_data))
-        _, temp_min, alt_min, _ = map(min, zip(*self.full_data))
+        _, temp_max, alt_max, _ = map(max, *self.full_data)
+        _, temp_min, alt_min, _ = map(min, *self.full_data)
 
         # Add small margin to constant values.
         #
