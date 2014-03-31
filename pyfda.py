@@ -194,12 +194,10 @@ def temperature_unit_to_string(temp_unit):
 
 
 def convert_to_csv(flights, out_prefix, count=0):
-    count_start = len(flights) - len(flights[-count:])
 
     for flight in flights[-count:]:
 
-        fname = out_prefix + '_%3.3d' % (flight.index + count_start) \
-                + CSV_FILE_EXTENSION
+        fname = out_prefix + '_%3.3d' % flight.index + CSV_FILE_EXTENSION
         print('   Writing %s file' % fname)
 
         length_unit = length_unit_to_string(flight.length_unit)
@@ -213,11 +211,9 @@ def convert_to_csv(flights, out_prefix, count=0):
 
 
 def convert_to_json(flights, out_prefix, count=0):
-    count_start = len(flights) - len(flights[-count:])
 
     for flight in flights[-count:]:
-        fname = out_prefix + '_%3.3d' % (flight.index + count_start) \
-                + JSON_FILE_EXTENSION
+        fname = out_prefix + '_%3.3d' % flight.index + JSON_FILE_EXTENSION
 
         # Prepare header.
         length_unit = length_unit_to_string(flight.length_unit)
