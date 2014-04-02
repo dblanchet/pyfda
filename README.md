@@ -7,6 +7,7 @@ I wrote `pyfda` because the altimeter came with a Windows-only software.
 Currently tested on:
 
 * Mac OS X 10.9.1 with Python 2.7
+* Linux Ubuntu 13.10 with Python 2.7 and Python 3.3
 
 Screenshot
 ----------
@@ -32,8 +33,7 @@ ToDo
 In no particular order, I would like to:
 
 * Write a user manual for CLI tool
-* Port to Python 3
-* Test on Linux and Windows, with both Python 2 and 3
+* Test on Mac with Python 3, Test on Windows with both Python 2 and 3
 * Add missing features in GUI
 * Publish on PyPI?
 
