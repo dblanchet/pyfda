@@ -60,6 +60,11 @@ class FdaFlightView(tk.Canvas):
         self.prev_time = -1
 
     def set_x_scale(self, x_scale):
+
+        # Do nothing if no data is displayed.
+        if self._data_source is None:
+            return
+
         self._x_scale = x_scale
         self._data_source.set_time_scale(x_scale)
 
@@ -118,6 +123,11 @@ class FdaFlightView(tk.Canvas):
         return self.TOP_MARGIN + (1.0 - rel_temp) * self._adjusted_height
 
     def on_button1_press(self, event):
+
+        # Do nothing if no data is displayed.
+        if self._data_source is None:
+            return
+
         # Left mouse button triggers scrolling.
         #
         # But only if scaling allows it.
@@ -135,6 +145,11 @@ class FdaFlightView(tk.Canvas):
         self._scrolling = False
 
     def on_mouse_motion(self, event):
+
+        # Do nothing if no data is displayed.
+        if self._data_source is None:
+            return
+
         x, y = event.x, event.y
 
         if self._scrolling:
