@@ -71,8 +71,9 @@ class FdaAltimeterControl(tk.Toplevel):
     PORT_SELECTION_FRAME_HEIGHT = 80
     SUB_FRAME_X_PADDING = 20
 
-    def __init__(self):
+    def __init__(self, parent):
         tk.Toplevel.__init__(self)
+        self.parent = parent
 
         # Do not let user to close this window
         # is a communication with the Altimeter
@@ -273,9 +274,8 @@ Please wait until communication is finished before closing this window."""))
                 showinfo(_(u'Upload Data'),
                         _(u'Altimeter contains no data.'))
             else:
-                self.write_flight_data(raw_data)
-
-            # TODO Suggest to open upload result in FileViewer
+                filename = self.write_flight_data(raw_data)
+                self.suggest_open_in_viewer(filename)
         finally:
             # Restore window state.
             self.communicating = False
@@ -313,6 +313,16 @@ Please wait until communication is finished before closing this window."""))
 
             # This method raises an exception if file already exists.
             raw_data.to_file(fname)
+
+        return fname
+
+    def suggest_open_in_viewer(self, filename):
+        # User may want to see latest uploaded data.
+        if filename:
+            reply = askokcancel(_(u'Open in viewer'),
+                _(u'Open saved flight data in file viewer?'))
+            if reply:
+                self.parent.load_file(filename)
 
     def erase(self):
         reply = askokcancel(_(u'Erase flight data'),

@@ -102,7 +102,7 @@ class FdaFileViewer(tk.Tk):
         self.flight_info.set_x_scale(event.widget.get())
 
     def open_device_window(self):
-        FdaAltimeterControl()
+        FdaAltimeterControl(self)
 
     def ask_for_file(self):
         filename = askopenfilename(filetypes=(
