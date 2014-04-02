@@ -560,7 +560,8 @@ class FdaFlightView(tk.Canvas):
         #
         # list(zip(()) because Python3's zip returns a generator.
         y_offset = 1.0 * label_height / 2
-        l = list(zip((alt + y_offset, soft + y_offset, temp + y_offset), range(3)))
+        l = list(zip((alt + y_offset, soft + y_offset, temp + y_offset),
+            range(3)))
         l.sort(key=lambda x: x[0])
         r = list(zip(*l))
         order = r[1]
