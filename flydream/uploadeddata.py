@@ -22,7 +22,7 @@ class UploadedData:
 
     def to_file(self, filename):
         if os.path.exists(filename):
-            raise IOError('File already exists')
+            raise OSError('File already exists')
 
         with open(filename, 'wb') as f:
             f.write(self.full_data())

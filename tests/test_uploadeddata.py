@@ -40,5 +40,5 @@ class FlyDreamUploadedData(unittest.TestCase):
         fname = name + '0'  # mkstemp creates the file. We do not want this.
         origin.to_file(fname)
 
-        with self.assertRaises(IOError):
+        with self.assertRaises(OSError):
             origin.to_file(fname)
