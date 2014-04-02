@@ -26,6 +26,8 @@ except ImportError:
     from tkinter.ttk import Progressbar
 
 
+import os
+import errno
 import time
 
 import gettext
@@ -284,6 +286,9 @@ Please wait until communication is finished before closing this window."""))
         self.upload_info.set(_(u'Done'))
 
     def write_flight_data(self, raw_data):
+        # Let user choose a file name.
+        #
+        # When cancelled, None is returned.
         fname = asksaveasfilename(
                     filetypes=((_(u'Flydream Altimeter Data'), '*.fda'),
                                (_(u'All files'), '*.*')),
@@ -291,7 +296,22 @@ Please wait until communication is finished before closing this window."""))
                     initialdir='~',
                     initialfile=self.default_filename(),
                     defaultextension=RAW_FILE_EXTENSION)
+
         if fname:
+            # Try to remove previous file.
+            #
+            # User has been warned by asksaveasfilename
+            # if she picked an existing file name.
+            try:
+                os.remove(fname)
+            except OSError as e:
+                # errno.ENOENT is 'no such file or directory'.
+                #
+                # Raise if another kind of error occurred.
+                if e.errno != errno.ENOENT:
+                    raise
+
+            # This method raises an exception if file already exists.
             raw_data.to_file(fname)
 
     def erase(self):
